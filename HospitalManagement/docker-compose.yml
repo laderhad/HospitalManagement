@@ -1,35 +1,40 @@
-version: '3.9'
-
 services:
   db:
     image: postgres:15
+    container_name: hospitalmanagement-db
     restart: unless-stopped
     environment:
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: HospitalManagementDb
+      POSTGRES_USER: ${POSTGRES_USER:-admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
+      POSTGRES_DB: ${POSTGRES_DB:-HospitalManagementDb}
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT:-5432}:5432"
     volumes:
       - db_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U admin -d HospitalManagementDb -h localhost"]
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER:-admin} -d ${POSTGRES_DB:-HospitalManagementDb} -h localhost",
+        ]
       interval: 10s
       timeout: 5s
       retries: 10
 
   web:
+    container_name: hospitalmanagement-web
     build:
       context: .
       dockerfile: src/Web/Dockerfile
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     restart: unless-stopped
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__HospitalManagementDb=Host=db;Port=5432;Database=HospitalManagementDb;Username=admin;Password=password;
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      ConnectionStrings__HospitalManagementDb: Host=db;Port=5432;Database=${POSTGRES_DB:-HospitalManagementDb};Username=${POSTGRES_USER:-admin};Password=${POSTGRES_PASSWORD:-password};
     ports:
-      - "5000:80"
+      - "${WEB_PORT:-5000}:80"
 
 volumes:
   db_data:
