@@ -8,7 +8,7 @@ public class AppointmentConfiguration : IEntityTypeConfiguration<Appointment>
 {
     public void Configure(EntityTypeBuilder<Appointment> builder)
     {
-        builder.Property(a => a.Status).HasMaxLength(50).IsRequired();
+        builder.Property(a => a.Status).HasConversion<string>().HasMaxLength(50).IsRequired();
         builder.Property(a => a.AppointmentDate).IsRequired();
 
         builder.HasOne(a => a.Patient)

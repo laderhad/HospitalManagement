@@ -26,6 +26,9 @@ public class ExaminationConfiguration : IEntityTypeConfiguration<Examination>
             .HasForeignKey(lr => lr.ExaminationId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        builder.Navigation(e => e.Prescriptions).UsePropertyAccessMode(PropertyAccessMode.Field);
+        builder.Navigation(e => e.LabRequests).UsePropertyAccessMode(PropertyAccessMode.Field);
+
         builder.HasKey(e => e.Id);
     }
 }
