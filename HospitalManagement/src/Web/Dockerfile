@@ -1,5 +1,9 @@
+FROM node:22-bookworm-slim AS node
+
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
+
+COPY --from=node /usr/local/ /usr/local/
 
 # Copy solution-level files
 COPY ["HospitalManagement.slnx", "./"]
@@ -13,6 +17,7 @@ COPY ["src/Application/Application.csproj", "src/Application/"]
 COPY ["src/Infrastructure/Infrastructure.csproj", "src/Infrastructure/"]
 COPY ["src/Domain/Domain.csproj", "src/Domain/"]
 COPY ["src/Shared/Shared.csproj", "src/Shared/"]
+COPY ["src/ServiceDefaults/ServiceDefaults.csproj", "src/ServiceDefaults/"]
 
 RUN dotnet restore "src/Web/Web.csproj"
 
@@ -22,6 +27,7 @@ COPY src/Application/ src/Application/
 COPY src/Infrastructure/ src/Infrastructure/
 COPY src/Domain/ src/Domain/
 COPY src/Shared/ src/Shared/
+COPY src/ServiceDefaults/ src/ServiceDefaults/
 
 WORKDIR /src/src/Web
 RUN dotnet publish "Web.csproj" -c Release -o /app/publish --no-restore
