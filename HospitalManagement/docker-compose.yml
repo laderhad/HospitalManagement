@@ -3,6 +3,7 @@ version: '3.9'
 services:
   db:
     image: postgres:15
+    restart: unless-stopped
     environment:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: password
@@ -11,6 +12,11 @@ services:
       - "5432:5432"
     volumes:
       - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d HospitalManagementDb -h localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
 
   web:
     build:
@@ -18,6 +24,7 @@ services:
       dockerfile: src/Web/Dockerfile
     depends_on:
       - db
+    restart: unless-stopped
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__HospitalManagementDb=Host=db;Port=5432;Database=HospitalManagementDb;Username=admin;Password=password;

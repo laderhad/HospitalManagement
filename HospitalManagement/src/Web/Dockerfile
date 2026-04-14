@@ -3,6 +3,9 @@ WORKDIR /src
 
 # Copy solution and projects
 COPY HospitalManagement.slnx ./
+COPY Directory.Build.props ./
+COPY Directory.Packages.props ./
+COPY global.json ./
 COPY src/Web/ src/Web/
 COPY src/Infrastructure/ src/Infrastructure/
 COPY src/Shared/ src/Shared/

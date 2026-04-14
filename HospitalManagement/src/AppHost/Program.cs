@@ -5,8 +5,8 @@ var builder = DistributedApplication.CreateBuilder(args);
 builder.AddAzureContainerAppEnvironment("aca-env");
 
 var databaseServer = builder
-    .AddAzurePostgresFlexibleServer(Services.DatabaseServer)
-    .WithPasswordAuthentication()
+    .AddPostgres(Services.DatabaseServer)
+    .WithEnvironment("POSTGRES_PASSWORD", "postgres")
     .RunAsContainer(container => 
         container.WithLifetime(ContainerLifetime.Persistent))
     .AddDatabase(Services.Database);

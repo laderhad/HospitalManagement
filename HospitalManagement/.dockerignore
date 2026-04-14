@@ -1,0 +1,28 @@
+# Ignore build outputs
+**/bin/
+**/obj/
+artifacts/
+artifacts/**
+
+# VS and git
+.vscode/
+.vs/
+.git/
+.gitignore
+
+# OS files
+.DS_Store
+
+# Node
+node_modules/
+
+# NuGet
+**/*.nupkg
+
+# User files
+*.user
+*.suo
+
+# Logs
+logs/
+*.log

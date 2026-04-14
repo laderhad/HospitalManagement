@@ -8,5 +8,23 @@ public interface IApplicationDbContext
 
     DbSet<TodoItem> TodoItems { get; }
 
+    DbSet<Patient> Patients { get; }
+
+    DbSet<Doctor> Doctors { get; }
+
+    DbSet<Department> Departments { get; }
+
+    DbSet<Appointment> Appointments { get; }
+
+    DbSet<Examination> Examinations { get; }
+
+    DbSet<Prescription> Prescriptions { get; }
+
+    DbSet<LabRequest> LabRequests { get; }
+
+    DbSet<LabRequestItem> LabRequestItems { get; }
+
+    DbSet<LabResult> LabResults { get; }
+
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }
