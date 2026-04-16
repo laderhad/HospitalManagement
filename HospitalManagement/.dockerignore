@@ -1,25 +1,25 @@
-# Ignore build outputs
+# Build outputs
 **/bin/
 **/obj/
 artifacts/
-artifacts/**
 
-# VS and git
-.vscode/
-.vs/
+# Source control and IDE
 .git/
 .gitignore
+.vs/
+.vscode/
+.idea/
 
 # OS files
 .DS_Store
 
 # Node
-node_modules/
+**/node_modules/
 
-# NuGet
+# NuGet packages
 **/*.nupkg
 
-# User files
+# User-specific files
 *.user
 *.suo
 
