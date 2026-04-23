@@ -12,6 +12,8 @@ namespace Microsoft.Extensions.DependencyInjection;
 
 public static class DependencyInjection
 {
+    private const string SmartIdentityScheme = "Identity.Smart";
+
     public static void AddInfrastructureServices(this IHostApplicationBuilder builder)
     {
         var connectionString = builder.Configuration.GetConnectionString(Services.Database);
@@ -35,9 +37,21 @@ public static class DependencyInjection
 
         builder.Services.AddAuthentication(options =>
             {
-                options.DefaultScheme = IdentityConstants.ApplicationScheme;
+                options.DefaultScheme = SmartIdentityScheme;
                 options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
             })
+            .AddPolicyScheme(SmartIdentityScheme, null, options =>
+            {
+                options.ForwardDefaultSelector = context =>
+                {
+                    var authorization = context.Request.Headers.Authorization.ToString();
+
+                    return authorization.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase)
+                        ? IdentityConstants.BearerScheme
+                        : IdentityConstants.ApplicationScheme;
+                };
+            })
+            .AddBearerToken(IdentityConstants.BearerScheme)
             .AddIdentityCookies();
 
         builder.Services.AddAuthorizationBuilder();

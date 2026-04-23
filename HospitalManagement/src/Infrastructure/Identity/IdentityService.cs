@@ -9,15 +9,18 @@ namespace HospitalManagement.Infrastructure.Identity;
 public class IdentityService : IIdentityService
 {
     private readonly UserManager<ApplicationUser> _userManager;
+    private readonly RoleManager<IdentityRole> _roleManager;
     private readonly IUserClaimsPrincipalFactory<ApplicationUser> _userClaimsPrincipalFactory;
     private readonly IAuthorizationService _authorizationService;
 
     public IdentityService(
         UserManager<ApplicationUser> userManager,
+        RoleManager<IdentityRole> roleManager,
         IUserClaimsPrincipalFactory<ApplicationUser> userClaimsPrincipalFactory,
         IAuthorizationService authorizationService)
     {
         _userManager = userManager;
+        _roleManager = roleManager;
         _userClaimsPrincipalFactory = userClaimsPrincipalFactory;
         _authorizationService = authorizationService;
     }
@@ -40,6 +43,63 @@ public class IdentityService : IIdentityService
         var result = await _userManager.CreateAsync(user, password);
 
         return (result.ToApplicationResult(), user.Id);
+    }
+
+    public async Task<(Result Result, string UserId)> CreateUserAsync(string userName, string password, string role)
+    {
+        var (result, userId) = await CreateUserAsync(userName, password);
+
+        if (!result.Succeeded)
+        {
+            return (result, userId);
+        }
+
+        var roleResult = await AddToRoleAsync(userId, role);
+
+        return (roleResult, userId);
+    }
+
+    public async Task<Result> AddToRoleAsync(string userId, string role)
+    {
+        if (string.IsNullOrWhiteSpace(role))
+        {
+            return Result.Failure(["Role is required."]);
+        }
+
+        var user = await _userManager.FindByIdAsync(userId);
+
+        if (user == null)
+        {
+            return Result.Failure(["User not found."]);
+        }
+
+        var roleResult = await CreateRoleAsync(role);
+
+        if (!roleResult.Succeeded)
+        {
+            return roleResult;
+        }
+
+        var result = await _userManager.AddToRoleAsync(user, role);
+
+        return result.ToApplicationResult();
+    }
+
+    public async Task<Result> CreateRoleAsync(string role)
+    {
+        if (string.IsNullOrWhiteSpace(role))
+        {
+            return Result.Failure(["Role is required."]);
+        }
+
+        if (await _roleManager.RoleExistsAsync(role))
+        {
+            return Result.Success();
+        }
+
+        var result = await _roleManager.CreateAsync(new IdentityRole(role));
+
+        return result.ToApplicationResult();
     }
 
     public async Task<bool> IsInRoleAsync(string userId, string role)

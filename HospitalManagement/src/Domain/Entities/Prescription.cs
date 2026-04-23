@@ -10,7 +10,7 @@ public class Prescription : BaseAuditableEntity
     {
         if (examinationId == Guid.Empty)
         {
-            throw new ArgumentException("Examination id is required.", nameof(examinationId));
+            throw new DomainException("Examination id is required.", nameof(examinationId));
         }
 
         SetDetails(medicationName, dosage, frequency, durationDays, notes);
@@ -19,7 +19,7 @@ public class Prescription : BaseAuditableEntity
 
     internal Prescription(Examination examination, string medicationName, string dosage, string frequency, int durationDays, string? notes = null)
     {
-        Examination = examination ?? throw new ArgumentNullException(nameof(examination));
+        Examination = examination ?? throw new DomainException("Examination is required.", nameof(examination));
         ExaminationId = examination.Id;
         SetDetails(medicationName, dosage, frequency, durationDays, notes);
     }
@@ -36,22 +36,22 @@ public class Prescription : BaseAuditableEntity
     {
         if (string.IsNullOrWhiteSpace(medicationName))
         {
-            throw new ArgumentException("Medication name is required.", nameof(medicationName));
+            throw new DomainException("Medication name is required.", nameof(medicationName));
         }
 
         if (string.IsNullOrWhiteSpace(dosage))
         {
-            throw new ArgumentException("Dosage is required.", nameof(dosage));
+            throw new DomainException("Dosage is required.", nameof(dosage));
         }
 
         if (string.IsNullOrWhiteSpace(frequency))
         {
-            throw new ArgumentException("Frequency is required.", nameof(frequency));
+            throw new DomainException("Frequency is required.", nameof(frequency));
         }
 
         if (durationDays <= 0)
         {
-            throw new ArgumentException("Duration must be greater than zero.", nameof(durationDays));
+            throw new DomainException("Duration must be greater than zero.", nameof(durationDays));
         }
 
         MedicationName = medicationName;

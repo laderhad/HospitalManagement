@@ -9,11 +9,14 @@ public class DepartmentConfiguration : IEntityTypeConfiguration<Department>
     public void Configure(EntityTypeBuilder<Department> builder)
     {
         builder.Property(dep => dep.Name).HasMaxLength(100).IsRequired();
+        builder.Property(dep => dep.IsActive).IsRequired();
         
         builder.HasMany(dep => dep.Doctors)
             .WithOne(d => d.Department)
             .HasForeignKey(d => d.DepartmentId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        builder.Navigation(dep => dep.Doctors).UsePropertyAccessMode(PropertyAccessMode.Field);
 
         builder.HasKey(dep => dep.Id);
     }

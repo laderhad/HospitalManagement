@@ -1,5 +1,6 @@
 ﻿using HospitalManagement.Domain.Constants;
 using HospitalManagement.Domain.Entities;
+using HospitalManagement.Domain.Enums;
 using HospitalManagement.Domain.ValueObjects;
 using HospitalManagement.Infrastructure.Identity;
 using Microsoft.AspNetCore.Builder;
@@ -66,7 +67,6 @@ public class ApplicationDbContextInitialiser
 
     public async Task TrySeedAsync()
     {
-        // Default roles
         var defaultRoles = new[]
         {
             new IdentityRole(Roles.Administrator),
@@ -82,38 +82,92 @@ public class ApplicationDbContextInitialiser
             }
         }
 
-        var administratorRole = defaultRoles.Single(r => r.Name == Roles.Administrator);
+        var administrator = await EnsureUserAsync("administrator@localhost", "Administrator1!", Roles.Administrator);
+        var doctorUser = await EnsureUserAsync("doctor@localhost", "Doctor1!", Roles.Doctor);
+        var patientUser = await EnsureUserAsync("patient@localhost", "Patient1!", Roles.Patient);
 
-        // Default users
-        var administrator = new ApplicationUser { UserName = "administrator@localhost", Email = "administrator@localhost" };
+        var cardiology = await EnsureDepartmentAsync("Cardiology");
+        await EnsureDoctorAsync(doctorUser.Id, "Demo", "Doctor", cardiology.Id, "555-0101", "Cardiology", "Specialist");
+        await EnsurePatientAsync(patientUser.Id, "Demo", "Patient", new DateTime(1990, 1, 1, 0, 0, 0, DateTimeKind.Utc), Gender.Unknown, "555-0102", "Demo address");
 
-        if (_userManager.Users.All(u => u.UserName != administrator.UserName))
+        await _context.SaveChangesAsync();
+    }
+
+    private async Task<ApplicationUser> EnsureUserAsync(string email, string password, string role)
+    {
+        var user = await _userManager.FindByEmailAsync(email);
+
+        if (user == null)
         {
-            await _userManager.CreateAsync(administrator, "Administrator1!");
-            if (!string.IsNullOrWhiteSpace(administratorRole.Name))
+            user = new ApplicationUser { UserName = email, Email = email };
+            var createResult = await _userManager.CreateAsync(user, password);
+
+            if (!createResult.Succeeded)
             {
-                await _userManager.AddToRolesAsync(administrator, new [] { administratorRole.Name });
+                throw new InvalidOperationException($"Failed to create seed user '{email}': {string.Join(", ", createResult.Errors.Select(e => e.Description))}");
             }
         }
 
-        // Default data
-        // Seed, if necessary
-        if (!_context.TodoLists.Any())
+        if (!await _userManager.IsInRoleAsync(user, role))
         {
-            _context.TodoLists.Add(new TodoList
-            {
-                Title = "Tasks",
-                Colour = Colour.Green,
-                Items =
-                {
-                    new TodoItem { Title = "Make a todo list 📃" },
-                    new TodoItem { Title = "Check off the first item ✅" },
-                    new TodoItem { Title = "Realise you've already done two things on the list! 🤯"},
-                    new TodoItem { Title = "Reward yourself with a nice, long nap 🏆" },
-                }
-            });
+            var roleResult = await _userManager.AddToRoleAsync(user, role);
 
-            await _context.SaveChangesAsync();
+            if (!roleResult.Succeeded)
+            {
+                throw new InvalidOperationException($"Failed to assign role '{role}' to seed user '{email}': {string.Join(", ", roleResult.Errors.Select(e => e.Description))}");
+            }
         }
+
+        return user;
+    }
+
+    private async Task<Department> EnsureDepartmentAsync(string name)
+    {
+        var department = await _context.Departments.FirstOrDefaultAsync(d => d.Name == name);
+
+        if (department != null)
+        {
+            return department;
+        }
+
+        department = new Department(name);
+        _context.Departments.Add(department);
+        await _context.SaveChangesAsync();
+
+        return department;
+    }
+
+    private async Task EnsureDoctorAsync(string applicationUserId, string firstName, string lastName, Guid departmentId, string contactNumber, string? specialty, string? title)
+    {
+        if (await _context.Doctors.AnyAsync(d => d.ApplicationUserId == applicationUserId))
+        {
+            return;
+        }
+
+        _context.Doctors.Add(new Doctor(
+            firstName,
+            lastName,
+            departmentId,
+            ContactNumber.From(contactNumber),
+            applicationUserId,
+            specialty,
+            title));
+    }
+
+    private async Task EnsurePatientAsync(string applicationUserId, string firstName, string lastName, DateTime dateOfBirth, Gender gender, string contactNumber, string address)
+    {
+        if (await _context.Patients.AnyAsync(p => p.ApplicationUserId == applicationUserId))
+        {
+            return;
+        }
+
+        _context.Patients.Add(new Patient(
+            firstName,
+            lastName,
+            dateOfBirth,
+            gender,
+            ContactNumber.From(contactNumber),
+            PostalAddress.From(address),
+            applicationUserId));
     }
 }

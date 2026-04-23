@@ -20,6 +20,8 @@ public class LabRequestItemConfiguration : IEntityTypeConfiguration<LabRequestIt
             .HasForeignKey(lr => lr.LabRequestItemId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        builder.Navigation(lri => lri.Results).UsePropertyAccessMode(PropertyAccessMode.Field);
+
         builder.HasKey(lri => lri.Id);
     }
 }

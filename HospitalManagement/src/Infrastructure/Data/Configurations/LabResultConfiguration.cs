@@ -11,6 +11,7 @@ public class LabResultConfiguration : IEntityTypeConfiguration<LabResult>
         builder.Property(lr => lr.ResultValue).HasMaxLength(100).IsRequired();
         builder.Property(lr => lr.Units).HasMaxLength(50).IsRequired();
         builder.Property(lr => lr.ReferenceRange).HasMaxLength(100).IsRequired();
+        builder.Property(lr => lr.Notes).HasMaxLength(500);
         builder.Property(lr => lr.ResultDate).IsRequired();
 
         builder.HasOne(lr => lr.LabRequestItem)
