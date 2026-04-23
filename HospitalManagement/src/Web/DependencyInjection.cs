@@ -1,5 +1,6 @@
 using Azure.Identity;
 using HospitalManagement.Application.Common.Interfaces;
+using HospitalManagement.Domain.Constants;
 using HospitalManagement.Infrastructure.Data;
 using HospitalManagement.Web.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -29,6 +30,15 @@ public static class DependencyInjection
             options.AddOperationTransformer<ApiExceptionOperationTransformer>();
             options.AddOperationTransformer<IdentityApiOperationTransformer>();
         });
+
+        builder.Services.AddAuthorizationBuilder()
+            .AddPolicy(Policies.IsAdministrator, policy => policy.RequireRole(Roles.Administrator))
+            .AddPolicy(Policies.IsDoctor, policy => policy.RequireRole(Roles.Doctor))
+            .AddPolicy(Policies.IsPatient, policy => policy.RequireRole(Roles.Patient))
+            .AddPolicy(Policies.IsAdministratorOrDoctor, policy =>
+                policy.RequireRole(Roles.Administrator, Roles.Doctor))
+            .AddPolicy(Policies.IsAdministratorOrPatient, policy =>
+                policy.RequireRole(Roles.Administrator, Roles.Patient));
 
         builder.Services.AddCors();
     }

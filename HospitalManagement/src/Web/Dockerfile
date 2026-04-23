@@ -19,7 +19,7 @@ COPY ["src/Domain/Domain.csproj", "src/Domain/"]
 COPY ["src/Shared/Shared.csproj", "src/Shared/"]
 COPY ["src/ServiceDefaults/ServiceDefaults.csproj", "src/ServiceDefaults/"]
 
-RUN dotnet restore "src/Web/Web.csproj"
+RUN dotnet restore "src/Web/Web.csproj" -p:NuGetAudit=false
 
 # Copy source files
 COPY src/Web/ src/Web/
@@ -30,14 +30,17 @@ COPY src/Shared/ src/Shared/
 COPY src/ServiceDefaults/ src/ServiceDefaults/
 
 WORKDIR /src/src/Web
-RUN dotnet publish "Web.csproj" -c Release -o /app/publish --no-restore
+RUN dotnet publish "Web.csproj" -c Release -o /app/publish --no-restore -p:NuGetAudit=false
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 WORKDIR /app
 
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends libgssapi-krb5-2 \
+    && rm -rf /var/lib/apt/lists/*
 COPY --from=build /app/publish ./
 
-ENV ASPNETCORE_URLS="http://+:80"
-EXPOSE 80
+ENV ASPNETCORE_URLS=http://+:8080
+EXPOSE 8080
 
-ENTRYPOINT ["dotnet", "Web.dll"]
+ENTRYPOINT ["dotnet", "HospitalManagement.Web.dll"]
