@@ -1,4 +1,5 @@
 using HospitalManagement.Domain.Constants;
+using HospitalManagement.Application.Common.Interfaces;
 using HospitalManagement.Infrastructure.Data;
 using HospitalManagement.Infrastructure.Identity;
 using MediatR;
@@ -77,6 +78,23 @@ public static class TestApp
         var errors = string.Join(Environment.NewLine, result.ToApplicationResult().Errors);
 
         throw new Exception($"Unable to create {userName}.{Environment.NewLine}{errors}");
+    }
+
+    public static Task ImpersonateAsync(string userId, string[] roles)
+    {
+        _userId = userId;
+        _roles = [.. roles];
+
+        return Task.CompletedTask;
+    }
+
+    public static async Task<bool> IsInRoleAsync(string userId, string role)
+    {
+        using var scope = FunctionalTestSetup.ScopeFactory.CreateScope();
+
+        var identityService = scope.ServiceProvider.GetRequiredService<IIdentityService>();
+
+        return await identityService.IsInRoleAsync(userId, role);
     }
 
     public static async Task ResetState()
