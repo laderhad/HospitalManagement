@@ -10,7 +10,7 @@ export function useTheme() {
 
 export function ThemeProvider({ children }) {
   const [theme, setTheme] = useState(
-    () => localStorage.getItem(STORAGE_KEY) || 'auto'
+    () => localStorage.getItem(STORAGE_KEY) || 'light'
   );
 
   useEffect(() => {

@@ -1,0 +1,6 @@
+ClientApp/node_modules/
+ClientApp/build/
+bin/
+obj/
+logs/
+*.log

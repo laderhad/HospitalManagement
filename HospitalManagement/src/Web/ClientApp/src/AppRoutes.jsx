@@ -1,27 +1,36 @@
-import { Counter } from "./components/Counter";
-import { Weather } from "./components/Weather";
-import { Tasks } from "./components/Todo";
-import { Home } from "./components/Home";
 import { LoginPage } from "./components/api-authorization/LoginPage";
 import { RegisterPage } from "./components/api-authorization/RegisterPage";
 import { ProtectedRoute } from "./components/api-authorization/ProtectedRoute";
+import { AdminDashboard } from "./components/admin/AdminDashboard";
+import { AppointmentsAdminPage } from "./components/admin/AppointmentsAdminPage";
+import { DepartmentsAdminPage } from "./components/admin/DepartmentsAdminPage";
+import { DoctorsAdminPage } from "./components/admin/DoctorsAdminPage";
+import { PatientsAdminPage } from "./components/admin/PatientsAdminPage";
 
 const AppRoutes = [
   {
     index: true,
-    element: <Home />
+    element: <ProtectedRoute><AdminDashboard /></ProtectedRoute>
   },
   {
-    path: '/counter',
-    element: <Counter />
+    path: '/admin',
+    element: <ProtectedRoute><AdminDashboard /></ProtectedRoute>
   },
   {
-    path: '/weather',
-    element: <ProtectedRoute><Weather /></ProtectedRoute>
+    path: '/departments',
+    element: <ProtectedRoute><DepartmentsAdminPage /></ProtectedRoute>
   },
   {
-    path: '/todo',
-    element: <ProtectedRoute><Tasks /></ProtectedRoute>
+    path: '/doctors',
+    element: <ProtectedRoute><DoctorsAdminPage /></ProtectedRoute>
+  },
+  {
+    path: '/patients',
+    element: <ProtectedRoute><PatientsAdminPage /></ProtectedRoute>
+  },
+  {
+    path: '/appointments',
+    element: <ProtectedRoute><AppointmentsAdminPage /></ProtectedRoute>
   },
   {
     path: '/login',

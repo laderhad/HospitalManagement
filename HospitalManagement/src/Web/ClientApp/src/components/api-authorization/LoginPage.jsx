@@ -5,7 +5,7 @@ import { useAuth } from './AuthContext';
 export function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [invalid, setInvalid] = useState(false);
+  const [error, setError] = useState('');
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -16,13 +16,15 @@ export function LoginPage() {
       await login(email, password);
       const returnUrl = location.state?.returnUrl || '/';
       navigate(returnUrl, { replace: true });
-    } catch {
-      setInvalid(true);
+    } catch (loginError) {
+      setError(loginError?.status === 401
+        ? 'Invalid email or password.'
+        : 'Login service is not reachable. Start the backend with docker compose up --build from the HospitalManagement folder, then try again.');
     }
   };
 
   const handleChange = (setter) => (e) => {
-    setInvalid(false);
+    setError('');
     setter(e.target.value);
   };
 
@@ -33,14 +35,14 @@ export function LoginPage() {
         <label htmlFor="email">Email</label>
         <input type="email" id="email" autoComplete="username"
           value={email} onChange={handleChange(setEmail)}
-          aria-invalid={invalid || undefined}
-          aria-describedby={invalid ? 'login-error' : undefined} />
+          aria-invalid={error || undefined}
+          aria-describedby={error ? 'login-error' : undefined} />
         <label htmlFor="password">Password</label>
         <input type="password" id="password" autoComplete="current-password"
           value={password} onChange={handleChange(setPassword)}
-          aria-invalid={invalid || undefined}
-          aria-describedby={invalid ? 'login-error' : undefined} />
-        {invalid && <small id="login-error">Invalid email or password.</small>}
+          aria-invalid={error || undefined}
+          aria-describedby={error ? 'login-error' : undefined} />
+        {error && <small id="login-error">{error}</small>}
         <button type="submit">Log in</button>
         <p style={{ marginTop: '1rem' }}>Don't have an account? <Link to="/register">Register</Link></p>
       </form>

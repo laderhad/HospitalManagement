@@ -3,7 +3,9 @@ import react from '@vitejs/plugin-react';
 
 const target =
   process.env['services__webapi__https__0'] ||
-  process.env['services__webapi__http__0'];
+  process.env['services__webapi__http__0'] ||
+  process.env['HOSPITALMANAGEMENT_API_URL'] ||
+  'http://localhost:5001';
 
 const proxyOptions = target
   ? { target, secure: false, changeOrigin: true }

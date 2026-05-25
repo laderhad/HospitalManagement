@@ -7,7 +7,7 @@
 /* eslint-disable */
 // ReSharper disable InconsistentNaming
 
-export class TodoItemsClient {
+export class AppointmentsClient {
     private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
     private baseUrl: string;
     protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
@@ -18,11 +18,66 @@ export class TodoItemsClient {
     }
 
     /**
-     * Create a new Todo Item
+     * @return OK
+     */
+    getAppointments(): Promise<AppointmentSummaryDto[]> {
+        let url_ = this.baseUrl + "/api/Appointments";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetAppointments(_response);
+        });
+    }
+
+    protected processGetAppointments(response: Response): Promise<AppointmentSummaryDto[]> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(AppointmentSummaryDto.fromJS(item));
+            }
+            else {
+                result200 = null as any;
+            }
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            return throwException("Bad Request", status, _responseText, _headers);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            return throwException("Unauthorized", status, _responseText, _headers);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            return throwException("Forbidden", status, _responseText, _headers);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<AppointmentSummaryDto[]>(null as any);
+    }
+
+    /**
      * @return Created
      */
-    createTodoItem(body: CreateTodoItemCommand): Promise<number> {
-        let url_ = this.baseUrl + "/api/TodoItems";
+    createAppointment(body: CreateAppointmentCommand): Promise<string> {
+        let url_ = this.baseUrl + "/api/Appointments";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(body);
@@ -37,11 +92,11 @@ export class TodoItemsClient {
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processCreateTodoItem(_response);
+            return this.processCreateAppointment(_response);
         });
     }
 
-    protected processCreateTodoItem(response: Response): Promise<number> {
+    protected processCreateAppointment(response: Response): Promise<string> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 201) {
@@ -69,14 +124,2583 @@ export class TodoItemsClient {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<number>(null as any);
+        return Promise.resolve<string>(null as any);
+    }
+
+    /**
+     * @return OK
+     */
+    getAppointmentById(id: string): Promise<AppointmentDetailsDto> {
+        let url_ = this.baseUrl + "/api/Appointments/{id}";
+        if (id === undefined || id === null)
+            throw new globalThis.Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetAppointmentById(_response);
+        });
+    }
+
+    protected processGetAppointmentById(response: Response): Promise<AppointmentDetailsDto> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = AppointmentDetailsDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            return throwException("Bad Request", status, _responseText, _headers);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            return throwException("Unauthorized", status, _responseText, _headers);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            return throwException("Forbidden", status, _responseText, _headers);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<AppointmentDetailsDto>(null as any);
+    }
+
+    /**
+     * @return OK
+     */
+    getMyPatientAppointments(): Promise<AppointmentSummaryDto[]> {
+        let url_ = this.baseUrl + "/api/Appointments/me";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetMyPatientAppointments(_response);
+        });
+    }
+
+    protected processGetMyPatientAppointments(response: Response): Promise<AppointmentSummaryDto[]> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(AppointmentSummaryDto.fromJS(item));
+            }
+            else {
+                result200 = null as any;
+            }
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            return throwException("Bad Request", status, _responseText, _headers);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            return throwException("Unauthorized", status, _responseText, _headers);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            return throwException("Forbidden", status, _responseText, _headers);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<AppointmentSummaryDto[]>(null as any);
+    }
+
+    /**
+     * @return Created
+     */
+    createMyAppointment(body: CreateMyAppointmentCommand): Promise<string> {
+        let url_ = this.baseUrl + "/api/Appointments/me";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processCreateMyAppointment(_response);
+        });
+    }
+
+    protected processCreateMyAppointment(response: Response): Promise<string> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 201) {
+            return response.text().then((_responseText) => {
+            let result201: any = null;
+            let resultData201 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+                result201 = resultData201 !== undefined ? resultData201 : null as any;
+    
+            return result201;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            return throwException("Bad Request", status, _responseText, _headers);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            return throwException("Unauthorized", status, _responseText, _headers);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            return throwException("Forbidden", status, _responseText, _headers);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<string>(null as any);
+    }
+
+    /**
+     * @return OK
+     */
+    getMyDoctorAppointments(): Promise<AppointmentSummaryDto[]> {
+        let url_ = this.baseUrl + "/api/Appointments/doctor";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetMyDoctorAppointments(_response);
+        });
+    }
+
+    protected processGetMyDoctorAppointments(response: Response): Promise<AppointmentSummaryDto[]> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(AppointmentSummaryDto.fromJS(item));
+            }
+            else {
+                result200 = null as any;
+            }
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            return throwException("Bad Request", status, _responseText, _headers);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            return throwException("Unauthorized", status, _responseText, _headers);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            return throwException("Forbidden", status, _responseText, _headers);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<AppointmentSummaryDto[]>(null as any);
+    }
+
+    /**
+     * @return No Content
+     */
+    rescheduleAppointment(id: string, body: RescheduleAppointmentCommand): Promise<void> {
+        let url_ = this.baseUrl + "/api/Appointments/{id}/reschedule";
+        if (id === undefined || id === null)
+            throw new globalThis.Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processRescheduleAppointment(_response);
+        });
+    }
+
+    protected processRescheduleAppointment(response: Response): Promise<void> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 204) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            return throwException("Bad Request", status, _responseText, _headers);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            return throwException("Unauthorized", status, _responseText, _headers);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            return throwException("Forbidden", status, _responseText, _headers);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    /**
+     * @return No Content
+     */
+    cancelAppointment(id: string): Promise<void> {
+        let url_ = this.baseUrl + "/api/Appointments/{id}/cancel";
+        if (id === undefined || id === null)
+            throw new globalThis.Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "PATCH",
+            headers: {
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processCancelAppointment(_response);
+        });
+    }
+
+    protected processCancelAppointment(response: Response): Promise<void> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 204) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            return throwException("Bad Request", status, _responseText, _headers);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            return throwException("Unauthorized", status, _responseText, _headers);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            return throwException("Forbidden", status, _responseText, _headers);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    /**
+     * @return No Content
+     */
+    completeAppointment(id: string): Promise<void> {
+        let url_ = this.baseUrl + "/api/Appointments/{id}/complete";
+        if (id === undefined || id === null)
+            throw new globalThis.Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "PATCH",
+            headers: {
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processCompleteAppointment(_response);
+        });
+    }
+
+    protected processCompleteAppointment(response: Response): Promise<void> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 204) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            return throwException("Bad Request", status, _responseText, _headers);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            return throwException("Unauthorized", status, _responseText, _headers);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            return throwException("Forbidden", status, _responseText, _headers);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+}
+
+export class DepartmentsClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : window as any;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    /**
+     * Get all Departments
+     * @return OK
+     */
+    getDepartments(): Promise<DepartmentSummaryDto[]> {
+        let url_ = this.baseUrl + "/api/Departments";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetDepartments(_response);
+        });
+    }
+
+    protected processGetDepartments(response: Response): Promise<DepartmentSummaryDto[]> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(DepartmentSummaryDto.fromJS(item));
+            }
+            else {
+                result200 = null as any;
+            }
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            return throwException("Bad Request", status, _responseText, _headers);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            return throwException("Unauthorized", status, _responseText, _headers);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            return throwException("Forbidden", status, _responseText, _headers);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<DepartmentSummaryDto[]>(null as any);
+    }
+
+    /**
+     * Create Department
+     * @return Created
+     */
+    createDepartment(body: CreateDepartmentCommand): Promise<string> {
+        let url_ = this.baseUrl + "/api/Departments";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processCreateDepartment(_response);
+        });
+    }
+
+    protected processCreateDepartment(response: Response): Promise<string> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 201) {
+            return response.text().then((_responseText) => {
+            let result201: any = null;
+            let resultData201 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+                result201 = resultData201 !== undefined ? resultData201 : null as any;
+    
+            return result201;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            return throwException("Bad Request", status, _responseText, _headers);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            return throwException("Unauthorized", status, _responseText, _headers);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            return throwException("Forbidden", status, _responseText, _headers);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<string>(null as any);
+    }
+
+    /**
+     * Get Department by ID
+     * @return OK
+     */
+    getDepartmentById(id: string): Promise<DepartmentDetailsDto> {
+        let url_ = this.baseUrl + "/api/Departments/{id}";
+        if (id === undefined || id === null)
+            throw new globalThis.Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetDepartmentById(_response);
+        });
+    }
+
+    protected processGetDepartmentById(response: Response): Promise<DepartmentDetailsDto> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = DepartmentDetailsDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            return throwException("Bad Request", status, _responseText, _headers);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            return throwException("Unauthorized", status, _responseText, _headers);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            return throwException("Forbidden", status, _responseText, _headers);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<DepartmentDetailsDto>(null as any);
+    }
+
+    /**
+     * Update Department
+     * @return No Content
+     */
+    updateDepartment(id: string, body: UpdateDepartmentCommand): Promise<void> {
+        let url_ = this.baseUrl + "/api/Departments/{id}";
+        if (id === undefined || id === null)
+            throw new globalThis.Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUpdateDepartment(_response);
+        });
+    }
+
+    protected processUpdateDepartment(response: Response): Promise<void> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 204) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            return throwException("Bad Request", status, _responseText, _headers);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            return throwException("Unauthorized", status, _responseText, _headers);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            return throwException("Forbidden", status, _responseText, _headers);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    /**
+     * Set Department Active State
+     * @return No Content
+     */
+    setDepartmentActiveState(id: string, body: SetDepartmentActiveStateCommand): Promise<void> {
+        let url_ = this.baseUrl + "/api/Departments/{id}/status";
+        if (id === undefined || id === null)
+            throw new globalThis.Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processSetDepartmentActiveState(_response);
+        });
+    }
+
+    protected processSetDepartmentActiveState(response: Response): Promise<void> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 204) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            return throwException("Bad Request", status, _responseText, _headers);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            return throwException("Unauthorized", status, _responseText, _headers);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            return throwException("Forbidden", status, _responseText, _headers);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+}
+
+export class DoctorsClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : window as any;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    /**
+     * Get all Doctors
+     * @return OK
+     */
+    getDoctors(): Promise<DoctorSummaryDto[]> {
+        let url_ = this.baseUrl + "/api/Doctors";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetDoctors(_response);
+        });
+    }
+
+    protected processGetDoctors(response: Response): Promise<DoctorSummaryDto[]> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(DoctorSummaryDto.fromJS(item));
+            }
+            else {
+                result200 = null as any;
+            }
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            return throwException("Bad Request", status, _responseText, _headers);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            return throwException("Unauthorized", status, _responseText, _headers);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            return throwException("Forbidden", status, _responseText, _headers);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<DoctorSummaryDto[]>(null as any);
+    }
+
+    /**
+     * Create Doctor
+     * @return Created
+     */
+    createDoctor(body: CreateDoctorCommand): Promise<string> {
+        let url_ = this.baseUrl + "/api/Doctors";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processCreateDoctor(_response);
+        });
+    }
+
+    protected processCreateDoctor(response: Response): Promise<string> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 201) {
+            return response.text().then((_responseText) => {
+            let result201: any = null;
+            let resultData201 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+                result201 = resultData201 !== undefined ? resultData201 : null as any;
+    
+            return result201;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            return throwException("Bad Request", status, _responseText, _headers);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            return throwException("Unauthorized", status, _responseText, _headers);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            return throwException("Forbidden", status, _responseText, _headers);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<string>(null as any);
+    }
+
+    /**
+     * Get Doctor by ID
+     * @return OK
+     */
+    getDoctorById(id: string): Promise<DoctorDetailsDto> {
+        let url_ = this.baseUrl + "/api/Doctors/{id}";
+        if (id === undefined || id === null)
+            throw new globalThis.Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetDoctorById(_response);
+        });
+    }
+
+    protected processGetDoctorById(response: Response): Promise<DoctorDetailsDto> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = DoctorDetailsDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            return throwException("Bad Request", status, _responseText, _headers);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            return throwException("Unauthorized", status, _responseText, _headers);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            return throwException("Forbidden", status, _responseText, _headers);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<DoctorDetailsDto>(null as any);
+    }
+
+    /**
+     * Update Doctor
+     * @return No Content
+     */
+    updateDoctor(id: string, body: UpdateDoctorCommand): Promise<void> {
+        let url_ = this.baseUrl + "/api/Doctors/{id}";
+        if (id === undefined || id === null)
+            throw new globalThis.Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUpdateDoctor(_response);
+        });
+    }
+
+    protected processUpdateDoctor(response: Response): Promise<void> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 204) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            return throwException("Bad Request", status, _responseText, _headers);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            return throwException("Unauthorized", status, _responseText, _headers);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            return throwException("Forbidden", status, _responseText, _headers);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    /**
+     * Set Doctor Active State
+     * @return No Content
+     */
+    setDoctorActiveState(id: string, body: SetDoctorActiveStateCommand): Promise<void> {
+        let url_ = this.baseUrl + "/api/Doctors/{id}/status";
+        if (id === undefined || id === null)
+            throw new globalThis.Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processSetDoctorActiveState(_response);
+        });
+    }
+
+    protected processSetDoctorActiveState(response: Response): Promise<void> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 204) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            return throwException("Bad Request", status, _responseText, _headers);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            return throwException("Unauthorized", status, _responseText, _headers);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            return throwException("Forbidden", status, _responseText, _headers);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+}
+
+export class ExaminationsClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : window as any;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    /**
+     * @return OK
+     */
+    getMyPatientExaminations(): Promise<ExaminationSummaryDto[]> {
+        let url_ = this.baseUrl + "/api/Examinations/me";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetMyPatientExaminations(_response);
+        });
+    }
+
+    protected processGetMyPatientExaminations(response: Response): Promise<ExaminationSummaryDto[]> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(ExaminationSummaryDto.fromJS(item));
+            }
+            else {
+                result200 = null as any;
+            }
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            return throwException("Bad Request", status, _responseText, _headers);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            return throwException("Unauthorized", status, _responseText, _headers);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            return throwException("Forbidden", status, _responseText, _headers);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ExaminationSummaryDto[]>(null as any);
+    }
+
+    /**
+     * @return OK
+     */
+    getMyDoctorExaminations(): Promise<ExaminationSummaryDto[]> {
+        let url_ = this.baseUrl + "/api/Examinations/doctor";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetMyDoctorExaminations(_response);
+        });
+    }
+
+    protected processGetMyDoctorExaminations(response: Response): Promise<ExaminationSummaryDto[]> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(ExaminationSummaryDto.fromJS(item));
+            }
+            else {
+                result200 = null as any;
+            }
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            return throwException("Bad Request", status, _responseText, _headers);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            return throwException("Unauthorized", status, _responseText, _headers);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            return throwException("Forbidden", status, _responseText, _headers);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ExaminationSummaryDto[]>(null as any);
+    }
+
+    /**
+     * @return OK
+     */
+    getExaminations(): Promise<ExaminationSummaryDto[]> {
+        let url_ = this.baseUrl + "/api/Examinations";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetExaminations(_response);
+        });
+    }
+
+    protected processGetExaminations(response: Response): Promise<ExaminationSummaryDto[]> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(ExaminationSummaryDto.fromJS(item));
+            }
+            else {
+                result200 = null as any;
+            }
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            return throwException("Bad Request", status, _responseText, _headers);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            return throwException("Unauthorized", status, _responseText, _headers);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            return throwException("Forbidden", status, _responseText, _headers);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ExaminationSummaryDto[]>(null as any);
+    }
+
+    /**
+     * @return Created
+     */
+    createExamination(body: CreateExaminationCommand): Promise<string> {
+        let url_ = this.baseUrl + "/api/Examinations";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processCreateExamination(_response);
+        });
+    }
+
+    protected processCreateExamination(response: Response): Promise<string> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 201) {
+            return response.text().then((_responseText) => {
+            let result201: any = null;
+            let resultData201 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+                result201 = resultData201 !== undefined ? resultData201 : null as any;
+    
+            return result201;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            return throwException("Bad Request", status, _responseText, _headers);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            return throwException("Unauthorized", status, _responseText, _headers);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            return throwException("Forbidden", status, _responseText, _headers);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<string>(null as any);
+    }
+
+    /**
+     * @return OK
+     */
+    getExaminationById(id: string): Promise<ExaminationDetailsDto> {
+        let url_ = this.baseUrl + "/api/Examinations/{id}";
+        if (id === undefined || id === null)
+            throw new globalThis.Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetExaminationById(_response);
+        });
+    }
+
+    protected processGetExaminationById(response: Response): Promise<ExaminationDetailsDto> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ExaminationDetailsDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            return throwException("Bad Request", status, _responseText, _headers);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            return throwException("Unauthorized", status, _responseText, _headers);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            return throwException("Forbidden", status, _responseText, _headers);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ExaminationDetailsDto>(null as any);
+    }
+
+    /**
+     * @return No Content
+     */
+    updateExamination(id: string, body: UpdateExaminationCommand): Promise<void> {
+        let url_ = this.baseUrl + "/api/Examinations/{id}";
+        if (id === undefined || id === null)
+            throw new globalThis.Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUpdateExamination(_response);
+        });
+    }
+
+    protected processUpdateExamination(response: Response): Promise<void> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 204) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            return throwException("Bad Request", status, _responseText, _headers);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            return throwException("Unauthorized", status, _responseText, _headers);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            return throwException("Forbidden", status, _responseText, _headers);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+}
+
+export class LabRequestsClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : window as any;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    /**
+     * @return OK
+     */
+    getMyPatientLabRequests(): Promise<LabRequestSummaryDto[]> {
+        let url_ = this.baseUrl + "/api/LabRequests/me";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetMyPatientLabRequests(_response);
+        });
+    }
+
+    protected processGetMyPatientLabRequests(response: Response): Promise<LabRequestSummaryDto[]> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(LabRequestSummaryDto.fromJS(item));
+            }
+            else {
+                result200 = null as any;
+            }
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            return throwException("Bad Request", status, _responseText, _headers);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            return throwException("Unauthorized", status, _responseText, _headers);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            return throwException("Forbidden", status, _responseText, _headers);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<LabRequestSummaryDto[]>(null as any);
+    }
+
+    /**
+     * @return OK
+     */
+    getMyDoctorLabRequests(): Promise<LabRequestSummaryDto[]> {
+        let url_ = this.baseUrl + "/api/LabRequests/doctor";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetMyDoctorLabRequests(_response);
+        });
+    }
+
+    protected processGetMyDoctorLabRequests(response: Response): Promise<LabRequestSummaryDto[]> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(LabRequestSummaryDto.fromJS(item));
+            }
+            else {
+                result200 = null as any;
+            }
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            return throwException("Bad Request", status, _responseText, _headers);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            return throwException("Unauthorized", status, _responseText, _headers);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            return throwException("Forbidden", status, _responseText, _headers);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<LabRequestSummaryDto[]>(null as any);
+    }
+
+    /**
+     * @return OK
+     */
+    getLabRequests(): Promise<LabRequestSummaryDto[]> {
+        let url_ = this.baseUrl + "/api/LabRequests";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetLabRequests(_response);
+        });
+    }
+
+    protected processGetLabRequests(response: Response): Promise<LabRequestSummaryDto[]> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(LabRequestSummaryDto.fromJS(item));
+            }
+            else {
+                result200 = null as any;
+            }
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            return throwException("Bad Request", status, _responseText, _headers);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            return throwException("Unauthorized", status, _responseText, _headers);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            return throwException("Forbidden", status, _responseText, _headers);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<LabRequestSummaryDto[]>(null as any);
+    }
+
+    /**
+     * @return Created
+     */
+    createLabRequest(body: CreateLabRequestCommand): Promise<string> {
+        let url_ = this.baseUrl + "/api/LabRequests";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processCreateLabRequest(_response);
+        });
+    }
+
+    protected processCreateLabRequest(response: Response): Promise<string> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 201) {
+            return response.text().then((_responseText) => {
+            let result201: any = null;
+            let resultData201 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+                result201 = resultData201 !== undefined ? resultData201 : null as any;
+    
+            return result201;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            return throwException("Bad Request", status, _responseText, _headers);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            return throwException("Unauthorized", status, _responseText, _headers);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            return throwException("Forbidden", status, _responseText, _headers);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<string>(null as any);
+    }
+
+    /**
+     * @return OK
+     */
+    getLabRequestById(id: string): Promise<LabRequestDetailsDto> {
+        let url_ = this.baseUrl + "/api/LabRequests/{id}";
+        if (id === undefined || id === null)
+            throw new globalThis.Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetLabRequestById(_response);
+        });
+    }
+
+    protected processGetLabRequestById(response: Response): Promise<LabRequestDetailsDto> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = LabRequestDetailsDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            return throwException("Bad Request", status, _responseText, _headers);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            return throwException("Unauthorized", status, _responseText, _headers);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            return throwException("Forbidden", status, _responseText, _headers);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<LabRequestDetailsDto>(null as any);
+    }
+}
+
+export class LabResultsClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : window as any;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    /**
+     * @return OK
+     */
+    getMyPatientLabResults(): Promise<LabResultSummaryDto[]> {
+        let url_ = this.baseUrl + "/api/LabResults/me";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetMyPatientLabResults(_response);
+        });
+    }
+
+    protected processGetMyPatientLabResults(response: Response): Promise<LabResultSummaryDto[]> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(LabResultSummaryDto.fromJS(item));
+            }
+            else {
+                result200 = null as any;
+            }
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            return throwException("Bad Request", status, _responseText, _headers);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            return throwException("Unauthorized", status, _responseText, _headers);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            return throwException("Forbidden", status, _responseText, _headers);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<LabResultSummaryDto[]>(null as any);
+    }
+
+    /**
+     * @return OK
+     */
+    getMyDoctorLabResults(): Promise<LabResultSummaryDto[]> {
+        let url_ = this.baseUrl + "/api/LabResults/doctor";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetMyDoctorLabResults(_response);
+        });
+    }
+
+    protected processGetMyDoctorLabResults(response: Response): Promise<LabResultSummaryDto[]> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(LabResultSummaryDto.fromJS(item));
+            }
+            else {
+                result200 = null as any;
+            }
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            return throwException("Bad Request", status, _responseText, _headers);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            return throwException("Unauthorized", status, _responseText, _headers);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            return throwException("Forbidden", status, _responseText, _headers);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<LabResultSummaryDto[]>(null as any);
+    }
+
+    /**
+     * @return OK
+     */
+    getLabResults(): Promise<LabResultSummaryDto[]> {
+        let url_ = this.baseUrl + "/api/LabResults";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetLabResults(_response);
+        });
+    }
+
+    protected processGetLabResults(response: Response): Promise<LabResultSummaryDto[]> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(LabResultSummaryDto.fromJS(item));
+            }
+            else {
+                result200 = null as any;
+            }
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            return throwException("Bad Request", status, _responseText, _headers);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            return throwException("Unauthorized", status, _responseText, _headers);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            return throwException("Forbidden", status, _responseText, _headers);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<LabResultSummaryDto[]>(null as any);
+    }
+
+    /**
+     * @return Created
+     */
+    createLabResult(body: CreateLabResultCommand): Promise<string> {
+        let url_ = this.baseUrl + "/api/LabResults";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processCreateLabResult(_response);
+        });
+    }
+
+    protected processCreateLabResult(response: Response): Promise<string> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 201) {
+            return response.text().then((_responseText) => {
+            let result201: any = null;
+            let resultData201 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+                result201 = resultData201 !== undefined ? resultData201 : null as any;
+    
+            return result201;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            return throwException("Bad Request", status, _responseText, _headers);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            return throwException("Unauthorized", status, _responseText, _headers);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            return throwException("Forbidden", status, _responseText, _headers);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<string>(null as any);
+    }
+
+    /**
+     * @return OK
+     */
+    getLabResultById(id: string): Promise<LabResultDetailsDto> {
+        let url_ = this.baseUrl + "/api/LabResults/{id}";
+        if (id === undefined || id === null)
+            throw new globalThis.Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetLabResultById(_response);
+        });
+    }
+
+    protected processGetLabResultById(response: Response): Promise<LabResultDetailsDto> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = LabResultDetailsDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            return throwException("Bad Request", status, _responseText, _headers);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            return throwException("Unauthorized", status, _responseText, _headers);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            return throwException("Forbidden", status, _responseText, _headers);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<LabResultDetailsDto>(null as any);
+    }
+
+    /**
+     * @return No Content
+     */
+    correctLabResult(id: string, body: CorrectLabResultCommand): Promise<void> {
+        let url_ = this.baseUrl + "/api/LabResults/{id}";
+        if (id === undefined || id === null)
+            throw new globalThis.Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processCorrectLabResult(_response);
+        });
+    }
+
+    protected processCorrectLabResult(response: Response): Promise<void> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 204) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            return throwException("Bad Request", status, _responseText, _headers);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            return throwException("Unauthorized", status, _responseText, _headers);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            return throwException("Forbidden", status, _responseText, _headers);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+}
+
+export class PatientsClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : window as any;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    /**
+     * Get My Patient Profile
+     * @return OK
+     */
+    getMyPatientProfile(): Promise<MyPatientProfileDto> {
+        let url_ = this.baseUrl + "/api/Patients/me";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetMyPatientProfile(_response);
+        });
+    }
+
+    protected processGetMyPatientProfile(response: Response): Promise<MyPatientProfileDto> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = MyPatientProfileDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            return throwException("Bad Request", status, _responseText, _headers);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            return throwException("Unauthorized", status, _responseText, _headers);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            return throwException("Forbidden", status, _responseText, _headers);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<MyPatientProfileDto>(null as any);
+    }
+
+    /**
+     * Update My Patient Profile
+     * @return No Content
+     */
+    updateMyPatientProfile(body: UpdateMyPatientProfileCommand): Promise<void> {
+        let url_ = this.baseUrl + "/api/Patients/me";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUpdateMyPatientProfile(_response);
+        });
+    }
+
+    protected processUpdateMyPatientProfile(response: Response): Promise<void> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 204) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            return throwException("Bad Request", status, _responseText, _headers);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            return throwException("Unauthorized", status, _responseText, _headers);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            return throwException("Forbidden", status, _responseText, _headers);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    /**
+     * Get all Patients
+     * @return OK
+     */
+    getPatients(): Promise<PatientSummaryDto[]> {
+        let url_ = this.baseUrl + "/api/Patients";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetPatients(_response);
+        });
+    }
+
+    protected processGetPatients(response: Response): Promise<PatientSummaryDto[]> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(PatientSummaryDto.fromJS(item));
+            }
+            else {
+                result200 = null as any;
+            }
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            return throwException("Bad Request", status, _responseText, _headers);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            return throwException("Unauthorized", status, _responseText, _headers);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            return throwException("Forbidden", status, _responseText, _headers);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<PatientSummaryDto[]>(null as any);
+    }
+
+    /**
+     * Create Patient
+     * @return Created
+     */
+    createPatient(body: CreatePatientByAdminCommand): Promise<string> {
+        let url_ = this.baseUrl + "/api/Patients";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processCreatePatient(_response);
+        });
+    }
+
+    protected processCreatePatient(response: Response): Promise<string> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 201) {
+            return response.text().then((_responseText) => {
+            let result201: any = null;
+            let resultData201 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+                result201 = resultData201 !== undefined ? resultData201 : null as any;
+    
+            return result201;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            return throwException("Bad Request", status, _responseText, _headers);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            return throwException("Unauthorized", status, _responseText, _headers);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            return throwException("Forbidden", status, _responseText, _headers);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<string>(null as any);
+    }
+
+    /**
+     * Get Patient by ID
+     * @return OK
+     */
+    getPatientById(id: string): Promise<PatientDetailsDto> {
+        let url_ = this.baseUrl + "/api/Patients/{id}";
+        if (id === undefined || id === null)
+            throw new globalThis.Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetPatientById(_response);
+        });
+    }
+
+    protected processGetPatientById(response: Response): Promise<PatientDetailsDto> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PatientDetailsDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            return throwException("Bad Request", status, _responseText, _headers);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            return throwException("Unauthorized", status, _responseText, _headers);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            return throwException("Forbidden", status, _responseText, _headers);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<PatientDetailsDto>(null as any);
+    }
+
+    /**
+     * Update Patient
+     * @return No Content
+     */
+    updatePatient(id: string, body: UpdatePatientCommand): Promise<void> {
+        let url_ = this.baseUrl + "/api/Patients/{id}";
+        if (id === undefined || id === null)
+            throw new globalThis.Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUpdatePatient(_response);
+        });
+    }
+
+    protected processUpdatePatient(response: Response): Promise<void> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 204) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            return throwException("Bad Request", status, _responseText, _headers);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            return throwException("Unauthorized", status, _responseText, _headers);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            return throwException("Forbidden", status, _responseText, _headers);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+}
+
+export class PrescriptionsClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : window as any;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    /**
+     * @return OK
+     */
+    getMyPatientPrescriptions(): Promise<PrescriptionSummaryDto[]> {
+        let url_ = this.baseUrl + "/api/Prescriptions/me";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetMyPatientPrescriptions(_response);
+        });
+    }
+
+    protected processGetMyPatientPrescriptions(response: Response): Promise<PrescriptionSummaryDto[]> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(PrescriptionSummaryDto.fromJS(item));
+            }
+            else {
+                result200 = null as any;
+            }
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            return throwException("Bad Request", status, _responseText, _headers);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            return throwException("Unauthorized", status, _responseText, _headers);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            return throwException("Forbidden", status, _responseText, _headers);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<PrescriptionSummaryDto[]>(null as any);
+    }
+
+    /**
+     * @return OK
+     */
+    getMyDoctorPrescriptions(): Promise<PrescriptionSummaryDto[]> {
+        let url_ = this.baseUrl + "/api/Prescriptions/doctor";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetMyDoctorPrescriptions(_response);
+        });
+    }
+
+    protected processGetMyDoctorPrescriptions(response: Response): Promise<PrescriptionSummaryDto[]> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(PrescriptionSummaryDto.fromJS(item));
+            }
+            else {
+                result200 = null as any;
+            }
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            return throwException("Bad Request", status, _responseText, _headers);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            return throwException("Unauthorized", status, _responseText, _headers);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            return throwException("Forbidden", status, _responseText, _headers);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<PrescriptionSummaryDto[]>(null as any);
+    }
+
+    /**
+     * @return OK
+     */
+    getPrescriptions(): Promise<PrescriptionSummaryDto[]> {
+        let url_ = this.baseUrl + "/api/Prescriptions";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetPrescriptions(_response);
+        });
+    }
+
+    protected processGetPrescriptions(response: Response): Promise<PrescriptionSummaryDto[]> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(PrescriptionSummaryDto.fromJS(item));
+            }
+            else {
+                result200 = null as any;
+            }
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            return throwException("Bad Request", status, _responseText, _headers);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            return throwException("Unauthorized", status, _responseText, _headers);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            return throwException("Forbidden", status, _responseText, _headers);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<PrescriptionSummaryDto[]>(null as any);
+    }
+
+    /**
+     * @return Created
+     */
+    createPrescription(body: CreatePrescriptionCommand): Promise<string> {
+        let url_ = this.baseUrl + "/api/Prescriptions";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processCreatePrescription(_response);
+        });
+    }
+
+    protected processCreatePrescription(response: Response): Promise<string> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 201) {
+            return response.text().then((_responseText) => {
+            let result201: any = null;
+            let resultData201 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+                result201 = resultData201 !== undefined ? resultData201 : null as any;
+    
+            return result201;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            return throwException("Bad Request", status, _responseText, _headers);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            return throwException("Unauthorized", status, _responseText, _headers);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            return throwException("Forbidden", status, _responseText, _headers);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<string>(null as any);
+    }
+
+    /**
+     * @return OK
+     */
+    getPrescriptionById(id: string): Promise<PrescriptionDetailsDto> {
+        let url_ = this.baseUrl + "/api/Prescriptions/{id}";
+        if (id === undefined || id === null)
+            throw new globalThis.Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetPrescriptionById(_response);
+        });
+    }
+
+    protected processGetPrescriptionById(response: Response): Promise<PrescriptionDetailsDto> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PrescriptionDetailsDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            return throwException("Bad Request", status, _responseText, _headers);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            return throwException("Unauthorized", status, _responseText, _headers);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            return throwException("Forbidden", status, _responseText, _headers);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<PrescriptionDetailsDto>(null as any);
+    }
+}
+
+export class TodoItemsClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : window as any;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    /**
+     * Create a new Todo Item
+     * @return Created
+     */
+    createTodoItem(body: CreateTodoItemCommand): Promise<string> {
+        let url_ = this.baseUrl + "/api/TodoItems";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processCreateTodoItem(_response);
+        });
+    }
+
+    protected processCreateTodoItem(response: Response): Promise<string> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 201) {
+            return response.text().then((_responseText) => {
+            let result201: any = null;
+            let resultData201 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+                result201 = resultData201 !== undefined ? resultData201 : null as any;
+    
+            return result201;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            return throwException("Bad Request", status, _responseText, _headers);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            return throwException("Unauthorized", status, _responseText, _headers);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            return throwException("Forbidden", status, _responseText, _headers);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<string>(null as any);
     }
 
     /**
      * Update a Todo Item
      * @return No Content
      */
-    updateTodoItem(id: number, body: UpdateTodoItemCommand): Promise<void> {
+    updateTodoItem(id: string, body: UpdateTodoItemCommand): Promise<void> {
         let url_ = this.baseUrl + "/api/TodoItems/{id}";
         if (id === undefined || id === null)
             throw new globalThis.Error("The parameter 'id' must be defined.");
@@ -129,7 +2753,7 @@ export class TodoItemsClient {
      * Delete a Todo Item
      * @return No Content
      */
-    deleteTodoItem(id: number): Promise<void> {
+    deleteTodoItem(id: string): Promise<void> {
         let url_ = this.baseUrl + "/api/TodoItems/{id}";
         if (id === undefined || id === null)
             throw new globalThis.Error("The parameter 'id' must be defined.");
@@ -178,7 +2802,7 @@ export class TodoItemsClient {
      * Update Todo Item Details
      * @return No Content
      */
-    updateTodoItemDetail(id: number, body: UpdateTodoItemDetailCommand): Promise<void> {
+    updateTodoItemDetail(id: string, body: UpdateTodoItemDetailCommand): Promise<void> {
         let url_ = this.baseUrl + "/api/TodoItems/UpdateDetail/{id}";
         if (id === undefined || id === null)
             throw new globalThis.Error("The parameter 'id' must be defined.");
@@ -292,7 +2916,7 @@ export class TodoListsClient {
      * Create a new Todo List
      * @return Created
      */
-    createTodoList(body: CreateTodoListCommand): Promise<number> {
+    createTodoList(body: CreateTodoListCommand): Promise<string> {
         let url_ = this.baseUrl + "/api/TodoLists";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -312,7 +2936,7 @@ export class TodoListsClient {
         });
     }
 
-    protected processCreateTodoList(response: Response): Promise<number> {
+    protected processCreateTodoList(response: Response): Promise<string> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 201) {
@@ -340,14 +2964,14 @@ export class TodoListsClient {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<number>(null as any);
+        return Promise.resolve<string>(null as any);
     }
 
     /**
      * Update a Todo List
      * @return No Content
      */
-    updateTodoList(id: number, body: UpdateTodoListCommand): Promise<void> {
+    updateTodoList(id: string, body: UpdateTodoListCommand): Promise<void> {
         let url_ = this.baseUrl + "/api/TodoLists/{id}";
         if (id === undefined || id === null)
             throw new globalThis.Error("The parameter 'id' must be defined.");
@@ -400,7 +3024,7 @@ export class TodoListsClient {
      * Delete a Todo List
      * @return No Content
      */
-    deleteTodoList(id: number): Promise<void> {
+    deleteTodoList(id: string): Promise<void> {
         let url_ = this.baseUrl + "/api/TodoLists/{id}";
         if (id === undefined || id === null)
             throw new globalThis.Error("The parameter 'id' must be defined.");
@@ -1144,6 +3768,158 @@ export interface IAccessTokenResponse {
     [key: string]: any;
 }
 
+export class AppointmentDetailsDto implements IAppointmentDetailsDto {
+    id!: string;
+    appointmentDate!: Date;
+    status!: number;
+    patientId!: string;
+    patientFullName!: string;
+    doctorId!: string;
+    doctorFullName!: string;
+    departmentId!: string;
+    departmentName!: string;
+
+    [key: string]: any;
+
+    constructor(data?: IAppointmentDetailsDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.id = _data["id"];
+            this.appointmentDate = _data["appointmentDate"] ? new Date(_data["appointmentDate"].toString()) : undefined as any;
+            this.status = _data["status"];
+            this.patientId = _data["patientId"];
+            this.patientFullName = _data["patientFullName"];
+            this.doctorId = _data["doctorId"];
+            this.doctorFullName = _data["doctorFullName"];
+            this.departmentId = _data["departmentId"];
+            this.departmentName = _data["departmentName"];
+        }
+    }
+
+    static fromJS(data: any): AppointmentDetailsDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new AppointmentDetailsDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["id"] = this.id;
+        data["appointmentDate"] = this.appointmentDate ? this.appointmentDate.toISOString() : undefined as any;
+        data["status"] = this.status;
+        data["patientId"] = this.patientId;
+        data["patientFullName"] = this.patientFullName;
+        data["doctorId"] = this.doctorId;
+        data["doctorFullName"] = this.doctorFullName;
+        data["departmentId"] = this.departmentId;
+        data["departmentName"] = this.departmentName;
+        return data;
+    }
+}
+
+export interface IAppointmentDetailsDto {
+    id: string;
+    appointmentDate: Date;
+    status: number;
+    patientId: string;
+    patientFullName: string;
+    doctorId: string;
+    doctorFullName: string;
+    departmentId: string;
+    departmentName: string;
+
+    [key: string]: any;
+}
+
+export class AppointmentSummaryDto implements IAppointmentSummaryDto {
+    id!: string;
+    appointmentDate!: Date;
+    status!: number;
+    patientId!: string;
+    patientFullName!: string;
+    doctorId!: string;
+    doctorFullName!: string;
+
+    [key: string]: any;
+
+    constructor(data?: IAppointmentSummaryDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.id = _data["id"];
+            this.appointmentDate = _data["appointmentDate"] ? new Date(_data["appointmentDate"].toString()) : undefined as any;
+            this.status = _data["status"];
+            this.patientId = _data["patientId"];
+            this.patientFullName = _data["patientFullName"];
+            this.doctorId = _data["doctorId"];
+            this.doctorFullName = _data["doctorFullName"];
+        }
+    }
+
+    static fromJS(data: any): AppointmentSummaryDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new AppointmentSummaryDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["id"] = this.id;
+        data["appointmentDate"] = this.appointmentDate ? this.appointmentDate.toISOString() : undefined as any;
+        data["status"] = this.status;
+        data["patientId"] = this.patientId;
+        data["patientFullName"] = this.patientFullName;
+        data["doctorId"] = this.doctorId;
+        data["doctorFullName"] = this.doctorFullName;
+        return data;
+    }
+}
+
+export interface IAppointmentSummaryDto {
+    id: string;
+    appointmentDate: Date;
+    status: number;
+    patientId: string;
+    patientFullName: string;
+    doctorId: string;
+    doctorFullName: string;
+
+    [key: string]: any;
+}
+
 export class ColourDto implements IColourDto {
     code?: string;
     name?: string;
@@ -1196,8 +3972,624 @@ export interface IColourDto {
     [key: string]: any;
 }
 
+export class CorrectLabResultCommand implements ICorrectLabResultCommand {
+    id?: string;
+    resultValue?: string;
+    units?: string;
+    referenceRange?: string;
+    notes?: string | undefined;
+
+    [key: string]: any;
+
+    constructor(data?: ICorrectLabResultCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.id = _data["id"];
+            this.resultValue = _data["resultValue"];
+            this.units = _data["units"];
+            this.referenceRange = _data["referenceRange"];
+            this.notes = _data["notes"];
+        }
+    }
+
+    static fromJS(data: any): CorrectLabResultCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new CorrectLabResultCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["id"] = this.id;
+        data["resultValue"] = this.resultValue;
+        data["units"] = this.units;
+        data["referenceRange"] = this.referenceRange;
+        data["notes"] = this.notes;
+        return data;
+    }
+}
+
+export interface ICorrectLabResultCommand {
+    id?: string;
+    resultValue?: string;
+    units?: string;
+    referenceRange?: string;
+    notes?: string | undefined;
+
+    [key: string]: any;
+}
+
+export class CreateAppointmentCommand implements ICreateAppointmentCommand {
+    patientId?: string;
+    doctorId?: string;
+    appointmentDate?: Date;
+
+    [key: string]: any;
+
+    constructor(data?: ICreateAppointmentCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.patientId = _data["patientId"];
+            this.doctorId = _data["doctorId"];
+            this.appointmentDate = _data["appointmentDate"] ? new Date(_data["appointmentDate"].toString()) : undefined as any;
+        }
+    }
+
+    static fromJS(data: any): CreateAppointmentCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateAppointmentCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["patientId"] = this.patientId;
+        data["doctorId"] = this.doctorId;
+        data["appointmentDate"] = this.appointmentDate ? this.appointmentDate.toISOString() : undefined as any;
+        return data;
+    }
+}
+
+export interface ICreateAppointmentCommand {
+    patientId?: string;
+    doctorId?: string;
+    appointmentDate?: Date;
+
+    [key: string]: any;
+}
+
+export class CreateDepartmentCommand implements ICreateDepartmentCommand {
+    name?: string;
+
+    [key: string]: any;
+
+    constructor(data?: ICreateDepartmentCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.name = _data["name"];
+        }
+    }
+
+    static fromJS(data: any): CreateDepartmentCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateDepartmentCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["name"] = this.name;
+        return data;
+    }
+}
+
+export interface ICreateDepartmentCommand {
+    name?: string;
+
+    [key: string]: any;
+}
+
+export class CreateDoctorCommand implements ICreateDoctorCommand {
+    email?: string;
+    password?: string;
+    firstName?: string;
+    lastName?: string;
+    departmentId?: string;
+    contactNumber?: string;
+    specialty?: string | undefined;
+    title?: string | undefined;
+
+    [key: string]: any;
+
+    constructor(data?: ICreateDoctorCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.email = _data["email"];
+            this.password = _data["password"];
+            this.firstName = _data["firstName"];
+            this.lastName = _data["lastName"];
+            this.departmentId = _data["departmentId"];
+            this.contactNumber = _data["contactNumber"];
+            this.specialty = _data["specialty"];
+            this.title = _data["title"];
+        }
+    }
+
+    static fromJS(data: any): CreateDoctorCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateDoctorCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["email"] = this.email;
+        data["password"] = this.password;
+        data["firstName"] = this.firstName;
+        data["lastName"] = this.lastName;
+        data["departmentId"] = this.departmentId;
+        data["contactNumber"] = this.contactNumber;
+        data["specialty"] = this.specialty;
+        data["title"] = this.title;
+        return data;
+    }
+}
+
+export interface ICreateDoctorCommand {
+    email?: string;
+    password?: string;
+    firstName?: string;
+    lastName?: string;
+    departmentId?: string;
+    contactNumber?: string;
+    specialty?: string | undefined;
+    title?: string | undefined;
+
+    [key: string]: any;
+}
+
+export class CreateExaminationCommand implements ICreateExaminationCommand {
+    appointmentId?: string;
+    diagnosis?: string;
+    treatment?: string;
+
+    [key: string]: any;
+
+    constructor(data?: ICreateExaminationCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.appointmentId = _data["appointmentId"];
+            this.diagnosis = _data["diagnosis"];
+            this.treatment = _data["treatment"];
+        }
+    }
+
+    static fromJS(data: any): CreateExaminationCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateExaminationCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["appointmentId"] = this.appointmentId;
+        data["diagnosis"] = this.diagnosis;
+        data["treatment"] = this.treatment;
+        return data;
+    }
+}
+
+export interface ICreateExaminationCommand {
+    appointmentId?: string;
+    diagnosis?: string;
+    treatment?: string;
+
+    [key: string]: any;
+}
+
+export class CreateLabRequestCommand implements ICreateLabRequestCommand {
+    examinationId?: string;
+    testNames?: string[];
+
+    [key: string]: any;
+
+    constructor(data?: ICreateLabRequestCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.examinationId = _data["examinationId"];
+            if (Array.isArray(_data["testNames"])) {
+                this.testNames = [] as any;
+                for (let item of _data["testNames"])
+                    this.testNames!.push(item);
+            }
+        }
+    }
+
+    static fromJS(data: any): CreateLabRequestCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateLabRequestCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["examinationId"] = this.examinationId;
+        if (Array.isArray(this.testNames)) {
+            data["testNames"] = [];
+            for (let item of this.testNames)
+                data["testNames"].push(item);
+        }
+        return data;
+    }
+}
+
+export interface ICreateLabRequestCommand {
+    examinationId?: string;
+    testNames?: string[];
+
+    [key: string]: any;
+}
+
+export class CreateLabResultCommand implements ICreateLabResultCommand {
+    labRequestItemId?: string;
+    resultValue?: string;
+    units?: string;
+    referenceRange?: string;
+    notes?: string | undefined;
+
+    [key: string]: any;
+
+    constructor(data?: ICreateLabResultCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.labRequestItemId = _data["labRequestItemId"];
+            this.resultValue = _data["resultValue"];
+            this.units = _data["units"];
+            this.referenceRange = _data["referenceRange"];
+            this.notes = _data["notes"];
+        }
+    }
+
+    static fromJS(data: any): CreateLabResultCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateLabResultCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["labRequestItemId"] = this.labRequestItemId;
+        data["resultValue"] = this.resultValue;
+        data["units"] = this.units;
+        data["referenceRange"] = this.referenceRange;
+        data["notes"] = this.notes;
+        return data;
+    }
+}
+
+export interface ICreateLabResultCommand {
+    labRequestItemId?: string;
+    resultValue?: string;
+    units?: string;
+    referenceRange?: string;
+    notes?: string | undefined;
+
+    [key: string]: any;
+}
+
+export class CreateMyAppointmentCommand implements ICreateMyAppointmentCommand {
+    doctorId?: string;
+    appointmentDate?: Date;
+
+    [key: string]: any;
+
+    constructor(data?: ICreateMyAppointmentCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.doctorId = _data["doctorId"];
+            this.appointmentDate = _data["appointmentDate"] ? new Date(_data["appointmentDate"].toString()) : undefined as any;
+        }
+    }
+
+    static fromJS(data: any): CreateMyAppointmentCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateMyAppointmentCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["doctorId"] = this.doctorId;
+        data["appointmentDate"] = this.appointmentDate ? this.appointmentDate.toISOString() : undefined as any;
+        return data;
+    }
+}
+
+export interface ICreateMyAppointmentCommand {
+    doctorId?: string;
+    appointmentDate?: Date;
+
+    [key: string]: any;
+}
+
+export class CreatePatientByAdminCommand implements ICreatePatientByAdminCommand {
+    applicationUserId?: string;
+    firstName?: string;
+    lastName?: string;
+    dateOfBirth?: Date;
+    gender?: number;
+    contactNumber?: string;
+    address?: string;
+
+    [key: string]: any;
+
+    constructor(data?: ICreatePatientByAdminCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.applicationUserId = _data["applicationUserId"];
+            this.firstName = _data["firstName"];
+            this.lastName = _data["lastName"];
+            this.dateOfBirth = _data["dateOfBirth"] ? new Date(_data["dateOfBirth"].toString()) : undefined as any;
+            this.gender = _data["gender"];
+            this.contactNumber = _data["contactNumber"];
+            this.address = _data["address"];
+        }
+    }
+
+    static fromJS(data: any): CreatePatientByAdminCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreatePatientByAdminCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["applicationUserId"] = this.applicationUserId;
+        data["firstName"] = this.firstName;
+        data["lastName"] = this.lastName;
+        data["dateOfBirth"] = this.dateOfBirth ? this.dateOfBirth.toISOString() : undefined as any;
+        data["gender"] = this.gender;
+        data["contactNumber"] = this.contactNumber;
+        data["address"] = this.address;
+        return data;
+    }
+}
+
+export interface ICreatePatientByAdminCommand {
+    applicationUserId?: string;
+    firstName?: string;
+    lastName?: string;
+    dateOfBirth?: Date;
+    gender?: number;
+    contactNumber?: string;
+    address?: string;
+
+    [key: string]: any;
+}
+
+export class CreatePrescriptionCommand implements ICreatePrescriptionCommand {
+    examinationId?: string;
+    medicationName?: string;
+    dosage?: string;
+    frequency?: string;
+    durationDays?: number;
+    notes?: string | undefined;
+
+    [key: string]: any;
+
+    constructor(data?: ICreatePrescriptionCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.examinationId = _data["examinationId"];
+            this.medicationName = _data["medicationName"];
+            this.dosage = _data["dosage"];
+            this.frequency = _data["frequency"];
+            this.durationDays = _data["durationDays"];
+            this.notes = _data["notes"];
+        }
+    }
+
+    static fromJS(data: any): CreatePrescriptionCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreatePrescriptionCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["examinationId"] = this.examinationId;
+        data["medicationName"] = this.medicationName;
+        data["dosage"] = this.dosage;
+        data["frequency"] = this.frequency;
+        data["durationDays"] = this.durationDays;
+        data["notes"] = this.notes;
+        return data;
+    }
+}
+
+export interface ICreatePrescriptionCommand {
+    examinationId?: string;
+    medicationName?: string;
+    dosage?: string;
+    frequency?: string;
+    durationDays?: number;
+    notes?: string | undefined;
+
+    [key: string]: any;
+}
+
 export class CreateTodoItemCommand implements ICreateTodoItemCommand {
-    listId?: number;
+    listId?: string;
     title?: string | undefined;
 
     [key: string]: any;
@@ -1242,7 +4634,7 @@ export class CreateTodoItemCommand implements ICreateTodoItemCommand {
 }
 
 export interface ICreateTodoItemCommand {
-    listId?: number;
+    listId?: string;
     title?: string | undefined;
 
     [key: string]: any;
@@ -1296,6 +4688,462 @@ export class CreateTodoListCommand implements ICreateTodoListCommand {
 export interface ICreateTodoListCommand {
     title?: string | undefined;
     colour?: string | undefined;
+
+    [key: string]: any;
+}
+
+export class DepartmentDetailsDto implements IDepartmentDetailsDto {
+    id!: string;
+    name!: string;
+    isActive!: boolean;
+
+    [key: string]: any;
+
+    constructor(data?: IDepartmentDetailsDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.id = _data["id"];
+            this.name = _data["name"];
+            this.isActive = _data["isActive"];
+        }
+    }
+
+    static fromJS(data: any): DepartmentDetailsDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new DepartmentDetailsDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["id"] = this.id;
+        data["name"] = this.name;
+        data["isActive"] = this.isActive;
+        return data;
+    }
+}
+
+export interface IDepartmentDetailsDto {
+    id: string;
+    name: string;
+    isActive: boolean;
+
+    [key: string]: any;
+}
+
+export class DepartmentSummaryDto implements IDepartmentSummaryDto {
+    id!: string;
+    name!: string;
+    isActive!: boolean;
+
+    [key: string]: any;
+
+    constructor(data?: IDepartmentSummaryDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.id = _data["id"];
+            this.name = _data["name"];
+            this.isActive = _data["isActive"];
+        }
+    }
+
+    static fromJS(data: any): DepartmentSummaryDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new DepartmentSummaryDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["id"] = this.id;
+        data["name"] = this.name;
+        data["isActive"] = this.isActive;
+        return data;
+    }
+}
+
+export interface IDepartmentSummaryDto {
+    id: string;
+    name: string;
+    isActive: boolean;
+
+    [key: string]: any;
+}
+
+export class DoctorDetailsDto implements IDoctorDetailsDto {
+    id!: string;
+    firstName!: string;
+    lastName!: string;
+    departmentId!: string;
+    departmentName!: string;
+    contactNumber!: string;
+    applicationUserId!: string;
+    specialty!: string | undefined;
+    title!: string | undefined;
+    isActive!: boolean;
+
+    [key: string]: any;
+
+    constructor(data?: IDoctorDetailsDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.id = _data["id"];
+            this.firstName = _data["firstName"];
+            this.lastName = _data["lastName"];
+            this.departmentId = _data["departmentId"];
+            this.departmentName = _data["departmentName"];
+            this.contactNumber = _data["contactNumber"];
+            this.applicationUserId = _data["applicationUserId"];
+            this.specialty = _data["specialty"];
+            this.title = _data["title"];
+            this.isActive = _data["isActive"];
+        }
+    }
+
+    static fromJS(data: any): DoctorDetailsDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new DoctorDetailsDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["id"] = this.id;
+        data["firstName"] = this.firstName;
+        data["lastName"] = this.lastName;
+        data["departmentId"] = this.departmentId;
+        data["departmentName"] = this.departmentName;
+        data["contactNumber"] = this.contactNumber;
+        data["applicationUserId"] = this.applicationUserId;
+        data["specialty"] = this.specialty;
+        data["title"] = this.title;
+        data["isActive"] = this.isActive;
+        return data;
+    }
+}
+
+export interface IDoctorDetailsDto {
+    id: string;
+    firstName: string;
+    lastName: string;
+    departmentId: string;
+    departmentName: string;
+    contactNumber: string;
+    applicationUserId: string;
+    specialty: string | undefined;
+    title: string | undefined;
+    isActive: boolean;
+
+    [key: string]: any;
+}
+
+export class DoctorSummaryDto implements IDoctorSummaryDto {
+    id!: string;
+    firstName!: string;
+    lastName!: string;
+    departmentId!: string;
+    departmentName!: string;
+    isActive!: boolean;
+
+    [key: string]: any;
+
+    constructor(data?: IDoctorSummaryDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.id = _data["id"];
+            this.firstName = _data["firstName"];
+            this.lastName = _data["lastName"];
+            this.departmentId = _data["departmentId"];
+            this.departmentName = _data["departmentName"];
+            this.isActive = _data["isActive"];
+        }
+    }
+
+    static fromJS(data: any): DoctorSummaryDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new DoctorSummaryDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["id"] = this.id;
+        data["firstName"] = this.firstName;
+        data["lastName"] = this.lastName;
+        data["departmentId"] = this.departmentId;
+        data["departmentName"] = this.departmentName;
+        data["isActive"] = this.isActive;
+        return data;
+    }
+}
+
+export interface IDoctorSummaryDto {
+    id: string;
+    firstName: string;
+    lastName: string;
+    departmentId: string;
+    departmentName: string;
+    isActive: boolean;
+
+    [key: string]: any;
+}
+
+export class ExaminationDetailsDto implements IExaminationDetailsDto {
+    id?: string;
+    appointmentId?: string;
+    appointmentDate?: Date;
+    patientId?: string;
+    patientFullName?: string;
+    doctorId?: string;
+    doctorFullName?: string;
+    diagnosis?: string;
+    treatment?: string;
+    prescriptionIds?: string[];
+    labRequestIds?: string[];
+
+    [key: string]: any;
+
+    constructor(data?: IExaminationDetailsDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.id = _data["id"];
+            this.appointmentId = _data["appointmentId"];
+            this.appointmentDate = _data["appointmentDate"] ? new Date(_data["appointmentDate"].toString()) : undefined as any;
+            this.patientId = _data["patientId"];
+            this.patientFullName = _data["patientFullName"];
+            this.doctorId = _data["doctorId"];
+            this.doctorFullName = _data["doctorFullName"];
+            this.diagnosis = _data["diagnosis"];
+            this.treatment = _data["treatment"];
+            if (Array.isArray(_data["prescriptionIds"])) {
+                this.prescriptionIds = [] as any;
+                for (let item of _data["prescriptionIds"])
+                    this.prescriptionIds!.push(item);
+            }
+            if (Array.isArray(_data["labRequestIds"])) {
+                this.labRequestIds = [] as any;
+                for (let item of _data["labRequestIds"])
+                    this.labRequestIds!.push(item);
+            }
+        }
+    }
+
+    static fromJS(data: any): ExaminationDetailsDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ExaminationDetailsDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["id"] = this.id;
+        data["appointmentId"] = this.appointmentId;
+        data["appointmentDate"] = this.appointmentDate ? this.appointmentDate.toISOString() : undefined as any;
+        data["patientId"] = this.patientId;
+        data["patientFullName"] = this.patientFullName;
+        data["doctorId"] = this.doctorId;
+        data["doctorFullName"] = this.doctorFullName;
+        data["diagnosis"] = this.diagnosis;
+        data["treatment"] = this.treatment;
+        if (Array.isArray(this.prescriptionIds)) {
+            data["prescriptionIds"] = [];
+            for (let item of this.prescriptionIds)
+                data["prescriptionIds"].push(item);
+        }
+        if (Array.isArray(this.labRequestIds)) {
+            data["labRequestIds"] = [];
+            for (let item of this.labRequestIds)
+                data["labRequestIds"].push(item);
+        }
+        return data;
+    }
+}
+
+export interface IExaminationDetailsDto {
+    id?: string;
+    appointmentId?: string;
+    appointmentDate?: Date;
+    patientId?: string;
+    patientFullName?: string;
+    doctorId?: string;
+    doctorFullName?: string;
+    diagnosis?: string;
+    treatment?: string;
+    prescriptionIds?: string[];
+    labRequestIds?: string[];
+
+    [key: string]: any;
+}
+
+export class ExaminationSummaryDto implements IExaminationSummaryDto {
+    id?: string;
+    appointmentId?: string;
+    appointmentDate?: Date;
+    patientId?: string;
+    patientFullName?: string;
+    doctorId?: string;
+    doctorFullName?: string;
+    diagnosis?: string;
+    treatment?: string;
+    prescriptionCount?: number;
+    labRequestCount?: number;
+
+    [key: string]: any;
+
+    constructor(data?: IExaminationSummaryDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.id = _data["id"];
+            this.appointmentId = _data["appointmentId"];
+            this.appointmentDate = _data["appointmentDate"] ? new Date(_data["appointmentDate"].toString()) : undefined as any;
+            this.patientId = _data["patientId"];
+            this.patientFullName = _data["patientFullName"];
+            this.doctorId = _data["doctorId"];
+            this.doctorFullName = _data["doctorFullName"];
+            this.diagnosis = _data["diagnosis"];
+            this.treatment = _data["treatment"];
+            this.prescriptionCount = _data["prescriptionCount"];
+            this.labRequestCount = _data["labRequestCount"];
+        }
+    }
+
+    static fromJS(data: any): ExaminationSummaryDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ExaminationSummaryDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["id"] = this.id;
+        data["appointmentId"] = this.appointmentId;
+        data["appointmentDate"] = this.appointmentDate ? this.appointmentDate.toISOString() : undefined as any;
+        data["patientId"] = this.patientId;
+        data["patientFullName"] = this.patientFullName;
+        data["doctorId"] = this.doctorId;
+        data["doctorFullName"] = this.doctorFullName;
+        data["diagnosis"] = this.diagnosis;
+        data["treatment"] = this.treatment;
+        data["prescriptionCount"] = this.prescriptionCount;
+        data["labRequestCount"] = this.labRequestCount;
+        return data;
+    }
+}
+
+export interface IExaminationSummaryDto {
+    id?: string;
+    appointmentId?: string;
+    appointmentDate?: Date;
+    patientId?: string;
+    patientFullName?: string;
+    doctorId?: string;
+    doctorFullName?: string;
+    diagnosis?: string;
+    treatment?: string;
+    prescriptionCount?: number;
+    labRequestCount?: number;
 
     [key: string]: any;
 }
@@ -1536,6 +5384,442 @@ export interface IInfoResponse {
     [key: string]: any;
 }
 
+export class LabRequestDetailsDto implements ILabRequestDetailsDto {
+    id?: string;
+    examinationId?: string;
+    appointmentId?: string;
+    patientId?: string;
+    patientFullName?: string;
+    doctorId?: string;
+    doctorFullName?: string;
+    requestDate?: Date;
+    items?: LabRequestItemDto[];
+
+    [key: string]: any;
+
+    constructor(data?: ILabRequestDetailsDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.id = _data["id"];
+            this.examinationId = _data["examinationId"];
+            this.appointmentId = _data["appointmentId"];
+            this.patientId = _data["patientId"];
+            this.patientFullName = _data["patientFullName"];
+            this.doctorId = _data["doctorId"];
+            this.doctorFullName = _data["doctorFullName"];
+            this.requestDate = _data["requestDate"] ? new Date(_data["requestDate"].toString()) : undefined as any;
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(LabRequestItemDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): LabRequestDetailsDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new LabRequestDetailsDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["id"] = this.id;
+        data["examinationId"] = this.examinationId;
+        data["appointmentId"] = this.appointmentId;
+        data["patientId"] = this.patientId;
+        data["patientFullName"] = this.patientFullName;
+        data["doctorId"] = this.doctorId;
+        data["doctorFullName"] = this.doctorFullName;
+        data["requestDate"] = this.requestDate ? this.requestDate.toISOString() : undefined as any;
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item ? item.toJSON() : undefined as any);
+        }
+        return data;
+    }
+}
+
+export interface ILabRequestDetailsDto {
+    id?: string;
+    examinationId?: string;
+    appointmentId?: string;
+    patientId?: string;
+    patientFullName?: string;
+    doctorId?: string;
+    doctorFullName?: string;
+    requestDate?: Date;
+    items?: LabRequestItemDto[];
+
+    [key: string]: any;
+}
+
+export class LabRequestItemDto implements ILabRequestItemDto {
+    id?: string;
+    testName?: string;
+    resultCount?: number;
+
+    [key: string]: any;
+
+    constructor(data?: ILabRequestItemDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.id = _data["id"];
+            this.testName = _data["testName"];
+            this.resultCount = _data["resultCount"];
+        }
+    }
+
+    static fromJS(data: any): LabRequestItemDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new LabRequestItemDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["id"] = this.id;
+        data["testName"] = this.testName;
+        data["resultCount"] = this.resultCount;
+        return data;
+    }
+}
+
+export interface ILabRequestItemDto {
+    id?: string;
+    testName?: string;
+    resultCount?: number;
+
+    [key: string]: any;
+}
+
+export class LabRequestSummaryDto implements ILabRequestSummaryDto {
+    id?: string;
+    examinationId?: string;
+    appointmentId?: string;
+    patientId?: string;
+    patientFullName?: string;
+    doctorId?: string;
+    doctorFullName?: string;
+    requestDate?: Date;
+    itemCount?: number;
+    resultCount?: number;
+
+    [key: string]: any;
+
+    constructor(data?: ILabRequestSummaryDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.id = _data["id"];
+            this.examinationId = _data["examinationId"];
+            this.appointmentId = _data["appointmentId"];
+            this.patientId = _data["patientId"];
+            this.patientFullName = _data["patientFullName"];
+            this.doctorId = _data["doctorId"];
+            this.doctorFullName = _data["doctorFullName"];
+            this.requestDate = _data["requestDate"] ? new Date(_data["requestDate"].toString()) : undefined as any;
+            this.itemCount = _data["itemCount"];
+            this.resultCount = _data["resultCount"];
+        }
+    }
+
+    static fromJS(data: any): LabRequestSummaryDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new LabRequestSummaryDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["id"] = this.id;
+        data["examinationId"] = this.examinationId;
+        data["appointmentId"] = this.appointmentId;
+        data["patientId"] = this.patientId;
+        data["patientFullName"] = this.patientFullName;
+        data["doctorId"] = this.doctorId;
+        data["doctorFullName"] = this.doctorFullName;
+        data["requestDate"] = this.requestDate ? this.requestDate.toISOString() : undefined as any;
+        data["itemCount"] = this.itemCount;
+        data["resultCount"] = this.resultCount;
+        return data;
+    }
+}
+
+export interface ILabRequestSummaryDto {
+    id?: string;
+    examinationId?: string;
+    appointmentId?: string;
+    patientId?: string;
+    patientFullName?: string;
+    doctorId?: string;
+    doctorFullName?: string;
+    requestDate?: Date;
+    itemCount?: number;
+    resultCount?: number;
+
+    [key: string]: any;
+}
+
+export class LabResultDetailsDto implements ILabResultDetailsDto {
+    id?: string;
+    labRequestId?: string;
+    labRequestItemId?: string;
+    examinationId?: string;
+    appointmentId?: string;
+    patientId?: string;
+    patientFullName?: string;
+    doctorId?: string;
+    doctorFullName?: string;
+    testName?: string;
+    resultValue?: string;
+    units?: string;
+    referenceRange?: string;
+    notes?: string | undefined;
+    resultDate?: Date;
+
+    [key: string]: any;
+
+    constructor(data?: ILabResultDetailsDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.id = _data["id"];
+            this.labRequestId = _data["labRequestId"];
+            this.labRequestItemId = _data["labRequestItemId"];
+            this.examinationId = _data["examinationId"];
+            this.appointmentId = _data["appointmentId"];
+            this.patientId = _data["patientId"];
+            this.patientFullName = _data["patientFullName"];
+            this.doctorId = _data["doctorId"];
+            this.doctorFullName = _data["doctorFullName"];
+            this.testName = _data["testName"];
+            this.resultValue = _data["resultValue"];
+            this.units = _data["units"];
+            this.referenceRange = _data["referenceRange"];
+            this.notes = _data["notes"];
+            this.resultDate = _data["resultDate"] ? new Date(_data["resultDate"].toString()) : undefined as any;
+        }
+    }
+
+    static fromJS(data: any): LabResultDetailsDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new LabResultDetailsDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["id"] = this.id;
+        data["labRequestId"] = this.labRequestId;
+        data["labRequestItemId"] = this.labRequestItemId;
+        data["examinationId"] = this.examinationId;
+        data["appointmentId"] = this.appointmentId;
+        data["patientId"] = this.patientId;
+        data["patientFullName"] = this.patientFullName;
+        data["doctorId"] = this.doctorId;
+        data["doctorFullName"] = this.doctorFullName;
+        data["testName"] = this.testName;
+        data["resultValue"] = this.resultValue;
+        data["units"] = this.units;
+        data["referenceRange"] = this.referenceRange;
+        data["notes"] = this.notes;
+        data["resultDate"] = this.resultDate ? this.resultDate.toISOString() : undefined as any;
+        return data;
+    }
+}
+
+export interface ILabResultDetailsDto {
+    id?: string;
+    labRequestId?: string;
+    labRequestItemId?: string;
+    examinationId?: string;
+    appointmentId?: string;
+    patientId?: string;
+    patientFullName?: string;
+    doctorId?: string;
+    doctorFullName?: string;
+    testName?: string;
+    resultValue?: string;
+    units?: string;
+    referenceRange?: string;
+    notes?: string | undefined;
+    resultDate?: Date;
+
+    [key: string]: any;
+}
+
+export class LabResultSummaryDto implements ILabResultSummaryDto {
+    id?: string;
+    labRequestId?: string;
+    labRequestItemId?: string;
+    examinationId?: string;
+    appointmentId?: string;
+    patientId?: string;
+    patientFullName?: string;
+    doctorId?: string;
+    doctorFullName?: string;
+    testName?: string;
+    resultValue?: string;
+    units?: string;
+    referenceRange?: string;
+    notes?: string | undefined;
+    resultDate?: Date;
+
+    [key: string]: any;
+
+    constructor(data?: ILabResultSummaryDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.id = _data["id"];
+            this.labRequestId = _data["labRequestId"];
+            this.labRequestItemId = _data["labRequestItemId"];
+            this.examinationId = _data["examinationId"];
+            this.appointmentId = _data["appointmentId"];
+            this.patientId = _data["patientId"];
+            this.patientFullName = _data["patientFullName"];
+            this.doctorId = _data["doctorId"];
+            this.doctorFullName = _data["doctorFullName"];
+            this.testName = _data["testName"];
+            this.resultValue = _data["resultValue"];
+            this.units = _data["units"];
+            this.referenceRange = _data["referenceRange"];
+            this.notes = _data["notes"];
+            this.resultDate = _data["resultDate"] ? new Date(_data["resultDate"].toString()) : undefined as any;
+        }
+    }
+
+    static fromJS(data: any): LabResultSummaryDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new LabResultSummaryDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["id"] = this.id;
+        data["labRequestId"] = this.labRequestId;
+        data["labRequestItemId"] = this.labRequestItemId;
+        data["examinationId"] = this.examinationId;
+        data["appointmentId"] = this.appointmentId;
+        data["patientId"] = this.patientId;
+        data["patientFullName"] = this.patientFullName;
+        data["doctorId"] = this.doctorId;
+        data["doctorFullName"] = this.doctorFullName;
+        data["testName"] = this.testName;
+        data["resultValue"] = this.resultValue;
+        data["units"] = this.units;
+        data["referenceRange"] = this.referenceRange;
+        data["notes"] = this.notes;
+        data["resultDate"] = this.resultDate ? this.resultDate.toISOString() : undefined as any;
+        return data;
+    }
+}
+
+export interface ILabResultSummaryDto {
+    id?: string;
+    labRequestId?: string;
+    labRequestItemId?: string;
+    examinationId?: string;
+    appointmentId?: string;
+    patientId?: string;
+    patientFullName?: string;
+    doctorId?: string;
+    doctorFullName?: string;
+    testName?: string;
+    resultValue?: string;
+    units?: string;
+    referenceRange?: string;
+    notes?: string | undefined;
+    resultDate?: Date;
+
+    [key: string]: any;
+}
+
 export class LoginRequest implements ILoginRequest {
     email!: string;
     password!: string;
@@ -1648,6 +5932,406 @@ export interface ILookupDto {
     [key: string]: any;
 }
 
+export class MyPatientProfileDto implements IMyPatientProfileDto {
+    id!: string;
+    firstName!: string;
+    lastName!: string;
+    dateOfBirth!: Date;
+    gender!: number;
+    contactNumber!: string;
+    address!: string;
+
+    [key: string]: any;
+
+    constructor(data?: IMyPatientProfileDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.id = _data["id"];
+            this.firstName = _data["firstName"];
+            this.lastName = _data["lastName"];
+            this.dateOfBirth = _data["dateOfBirth"] ? new Date(_data["dateOfBirth"].toString()) : undefined as any;
+            this.gender = _data["gender"];
+            this.contactNumber = _data["contactNumber"];
+            this.address = _data["address"];
+        }
+    }
+
+    static fromJS(data: any): MyPatientProfileDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new MyPatientProfileDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["id"] = this.id;
+        data["firstName"] = this.firstName;
+        data["lastName"] = this.lastName;
+        data["dateOfBirth"] = this.dateOfBirth ? this.dateOfBirth.toISOString() : undefined as any;
+        data["gender"] = this.gender;
+        data["contactNumber"] = this.contactNumber;
+        data["address"] = this.address;
+        return data;
+    }
+}
+
+export interface IMyPatientProfileDto {
+    id: string;
+    firstName: string;
+    lastName: string;
+    dateOfBirth: Date;
+    gender: number;
+    contactNumber: string;
+    address: string;
+
+    [key: string]: any;
+}
+
+export class PatientDetailsDto implements IPatientDetailsDto {
+    id!: string;
+    firstName!: string;
+    lastName!: string;
+    dateOfBirth!: Date;
+    gender!: number;
+    contactNumber!: string;
+    address!: string;
+    applicationUserId!: string;
+
+    [key: string]: any;
+
+    constructor(data?: IPatientDetailsDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.id = _data["id"];
+            this.firstName = _data["firstName"];
+            this.lastName = _data["lastName"];
+            this.dateOfBirth = _data["dateOfBirth"] ? new Date(_data["dateOfBirth"].toString()) : undefined as any;
+            this.gender = _data["gender"];
+            this.contactNumber = _data["contactNumber"];
+            this.address = _data["address"];
+            this.applicationUserId = _data["applicationUserId"];
+        }
+    }
+
+    static fromJS(data: any): PatientDetailsDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new PatientDetailsDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["id"] = this.id;
+        data["firstName"] = this.firstName;
+        data["lastName"] = this.lastName;
+        data["dateOfBirth"] = this.dateOfBirth ? this.dateOfBirth.toISOString() : undefined as any;
+        data["gender"] = this.gender;
+        data["contactNumber"] = this.contactNumber;
+        data["address"] = this.address;
+        data["applicationUserId"] = this.applicationUserId;
+        return data;
+    }
+}
+
+export interface IPatientDetailsDto {
+    id: string;
+    firstName: string;
+    lastName: string;
+    dateOfBirth: Date;
+    gender: number;
+    contactNumber: string;
+    address: string;
+    applicationUserId: string;
+
+    [key: string]: any;
+}
+
+export class PatientSummaryDto implements IPatientSummaryDto {
+    id!: string;
+    firstName!: string;
+    lastName!: string;
+    dateOfBirth!: Date;
+    gender!: number;
+    applicationUserId!: string;
+
+    [key: string]: any;
+
+    constructor(data?: IPatientSummaryDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.id = _data["id"];
+            this.firstName = _data["firstName"];
+            this.lastName = _data["lastName"];
+            this.dateOfBirth = _data["dateOfBirth"] ? new Date(_data["dateOfBirth"].toString()) : undefined as any;
+            this.gender = _data["gender"];
+            this.applicationUserId = _data["applicationUserId"];
+        }
+    }
+
+    static fromJS(data: any): PatientSummaryDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new PatientSummaryDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["id"] = this.id;
+        data["firstName"] = this.firstName;
+        data["lastName"] = this.lastName;
+        data["dateOfBirth"] = this.dateOfBirth ? this.dateOfBirth.toISOString() : undefined as any;
+        data["gender"] = this.gender;
+        data["applicationUserId"] = this.applicationUserId;
+        return data;
+    }
+}
+
+export interface IPatientSummaryDto {
+    id: string;
+    firstName: string;
+    lastName: string;
+    dateOfBirth: Date;
+    gender: number;
+    applicationUserId: string;
+
+    [key: string]: any;
+}
+
+export class PrescriptionDetailsDto implements IPrescriptionDetailsDto {
+    id?: string;
+    examinationId?: string;
+    appointmentId?: string;
+    patientId?: string;
+    patientFullName?: string;
+    doctorId?: string;
+    doctorFullName?: string;
+    medicationName?: string;
+    dosage?: string;
+    frequency?: string;
+    durationDays?: number;
+    notes?: string | undefined;
+
+    [key: string]: any;
+
+    constructor(data?: IPrescriptionDetailsDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.id = _data["id"];
+            this.examinationId = _data["examinationId"];
+            this.appointmentId = _data["appointmentId"];
+            this.patientId = _data["patientId"];
+            this.patientFullName = _data["patientFullName"];
+            this.doctorId = _data["doctorId"];
+            this.doctorFullName = _data["doctorFullName"];
+            this.medicationName = _data["medicationName"];
+            this.dosage = _data["dosage"];
+            this.frequency = _data["frequency"];
+            this.durationDays = _data["durationDays"];
+            this.notes = _data["notes"];
+        }
+    }
+
+    static fromJS(data: any): PrescriptionDetailsDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new PrescriptionDetailsDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["id"] = this.id;
+        data["examinationId"] = this.examinationId;
+        data["appointmentId"] = this.appointmentId;
+        data["patientId"] = this.patientId;
+        data["patientFullName"] = this.patientFullName;
+        data["doctorId"] = this.doctorId;
+        data["doctorFullName"] = this.doctorFullName;
+        data["medicationName"] = this.medicationName;
+        data["dosage"] = this.dosage;
+        data["frequency"] = this.frequency;
+        data["durationDays"] = this.durationDays;
+        data["notes"] = this.notes;
+        return data;
+    }
+}
+
+export interface IPrescriptionDetailsDto {
+    id?: string;
+    examinationId?: string;
+    appointmentId?: string;
+    patientId?: string;
+    patientFullName?: string;
+    doctorId?: string;
+    doctorFullName?: string;
+    medicationName?: string;
+    dosage?: string;
+    frequency?: string;
+    durationDays?: number;
+    notes?: string | undefined;
+
+    [key: string]: any;
+}
+
+export class PrescriptionSummaryDto implements IPrescriptionSummaryDto {
+    id?: string;
+    examinationId?: string;
+    appointmentId?: string;
+    patientId?: string;
+    patientFullName?: string;
+    doctorId?: string;
+    doctorFullName?: string;
+    medicationName?: string;
+    dosage?: string;
+    frequency?: string;
+    durationDays?: number;
+    notes?: string | undefined;
+
+    [key: string]: any;
+
+    constructor(data?: IPrescriptionSummaryDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.id = _data["id"];
+            this.examinationId = _data["examinationId"];
+            this.appointmentId = _data["appointmentId"];
+            this.patientId = _data["patientId"];
+            this.patientFullName = _data["patientFullName"];
+            this.doctorId = _data["doctorId"];
+            this.doctorFullName = _data["doctorFullName"];
+            this.medicationName = _data["medicationName"];
+            this.dosage = _data["dosage"];
+            this.frequency = _data["frequency"];
+            this.durationDays = _data["durationDays"];
+            this.notes = _data["notes"];
+        }
+    }
+
+    static fromJS(data: any): PrescriptionSummaryDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new PrescriptionSummaryDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["id"] = this.id;
+        data["examinationId"] = this.examinationId;
+        data["appointmentId"] = this.appointmentId;
+        data["patientId"] = this.patientId;
+        data["patientFullName"] = this.patientFullName;
+        data["doctorId"] = this.doctorId;
+        data["doctorFullName"] = this.doctorFullName;
+        data["medicationName"] = this.medicationName;
+        data["dosage"] = this.dosage;
+        data["frequency"] = this.frequency;
+        data["durationDays"] = this.durationDays;
+        data["notes"] = this.notes;
+        return data;
+    }
+}
+
+export interface IPrescriptionSummaryDto {
+    id?: string;
+    examinationId?: string;
+    appointmentId?: string;
+    patientId?: string;
+    patientFullName?: string;
+    doctorId?: string;
+    doctorFullName?: string;
+    medicationName?: string;
+    dosage?: string;
+    frequency?: string;
+    durationDays?: number;
+    notes?: string | undefined;
+
+    [key: string]: any;
+}
+
 export class RefreshRequest implements IRefreshRequest {
     refreshToken!: string;
 
@@ -1744,6 +6428,58 @@ export class RegisterRequest implements IRegisterRequest {
 export interface IRegisterRequest {
     email: string;
     password: string;
+
+    [key: string]: any;
+}
+
+export class RescheduleAppointmentCommand implements IRescheduleAppointmentCommand {
+    id?: string;
+    appointmentDate?: Date;
+
+    [key: string]: any;
+
+    constructor(data?: IRescheduleAppointmentCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.id = _data["id"];
+            this.appointmentDate = _data["appointmentDate"] ? new Date(_data["appointmentDate"].toString()) : undefined as any;
+        }
+    }
+
+    static fromJS(data: any): RescheduleAppointmentCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new RescheduleAppointmentCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["id"] = this.id;
+        data["appointmentDate"] = this.appointmentDate ? this.appointmentDate.toISOString() : undefined as any;
+        return data;
+    }
+}
+
+export interface IRescheduleAppointmentCommand {
+    id?: string;
+    appointmentDate?: Date;
 
     [key: string]: any;
 }
@@ -1852,9 +6588,113 @@ export interface IResetPasswordRequest {
     [key: string]: any;
 }
 
+export class SetDepartmentActiveStateCommand implements ISetDepartmentActiveStateCommand {
+    id?: string;
+    isActive?: boolean;
+
+    [key: string]: any;
+
+    constructor(data?: ISetDepartmentActiveStateCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.id = _data["id"];
+            this.isActive = _data["isActive"];
+        }
+    }
+
+    static fromJS(data: any): SetDepartmentActiveStateCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new SetDepartmentActiveStateCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["id"] = this.id;
+        data["isActive"] = this.isActive;
+        return data;
+    }
+}
+
+export interface ISetDepartmentActiveStateCommand {
+    id?: string;
+    isActive?: boolean;
+
+    [key: string]: any;
+}
+
+export class SetDoctorActiveStateCommand implements ISetDoctorActiveStateCommand {
+    id?: string;
+    isActive?: boolean;
+
+    [key: string]: any;
+
+    constructor(data?: ISetDoctorActiveStateCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.id = _data["id"];
+            this.isActive = _data["isActive"];
+        }
+    }
+
+    static fromJS(data: any): SetDoctorActiveStateCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new SetDoctorActiveStateCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["id"] = this.id;
+        data["isActive"] = this.isActive;
+        return data;
+    }
+}
+
+export interface ISetDoctorActiveStateCommand {
+    id?: string;
+    isActive?: boolean;
+
+    [key: string]: any;
+}
+
 export class TodoItemDto implements ITodoItemDto {
-    id?: number;
-    listId?: number;
+    id?: string;
+    listId?: string;
     title?: string | undefined;
     done?: boolean;
     priority?: number;
@@ -1910,8 +6750,8 @@ export class TodoItemDto implements ITodoItemDto {
 }
 
 export interface ITodoItemDto {
-    id?: number;
-    listId?: number;
+    id?: string;
+    listId?: string;
     title?: string | undefined;
     done?: boolean;
     priority?: number;
@@ -1921,7 +6761,7 @@ export interface ITodoItemDto {
 }
 
 export class TodoListDto implements ITodoListDto {
-    id?: number;
+    id?: string;
     title?: string | undefined;
     colour?: string | undefined;
     items?: TodoItemDto[];
@@ -1980,7 +6820,7 @@ export class TodoListDto implements ITodoListDto {
 }
 
 export interface ITodoListDto {
-    id?: number;
+    id?: string;
     title?: string | undefined;
     colour?: string | undefined;
     items?: TodoItemDto[];
@@ -2204,8 +7044,328 @@ export interface ITwoFactorResponse {
     [key: string]: any;
 }
 
+export class UpdateDepartmentCommand implements IUpdateDepartmentCommand {
+    id?: string;
+    name?: string;
+
+    [key: string]: any;
+
+    constructor(data?: IUpdateDepartmentCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.id = _data["id"];
+            this.name = _data["name"];
+        }
+    }
+
+    static fromJS(data: any): UpdateDepartmentCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateDepartmentCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["id"] = this.id;
+        data["name"] = this.name;
+        return data;
+    }
+}
+
+export interface IUpdateDepartmentCommand {
+    id?: string;
+    name?: string;
+
+    [key: string]: any;
+}
+
+export class UpdateDoctorCommand implements IUpdateDoctorCommand {
+    id?: string;
+    firstName?: string;
+    lastName?: string;
+    departmentId?: string;
+    contactNumber?: string;
+    specialty?: string | undefined;
+    title?: string | undefined;
+
+    [key: string]: any;
+
+    constructor(data?: IUpdateDoctorCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.id = _data["id"];
+            this.firstName = _data["firstName"];
+            this.lastName = _data["lastName"];
+            this.departmentId = _data["departmentId"];
+            this.contactNumber = _data["contactNumber"];
+            this.specialty = _data["specialty"];
+            this.title = _data["title"];
+        }
+    }
+
+    static fromJS(data: any): UpdateDoctorCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateDoctorCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["id"] = this.id;
+        data["firstName"] = this.firstName;
+        data["lastName"] = this.lastName;
+        data["departmentId"] = this.departmentId;
+        data["contactNumber"] = this.contactNumber;
+        data["specialty"] = this.specialty;
+        data["title"] = this.title;
+        return data;
+    }
+}
+
+export interface IUpdateDoctorCommand {
+    id?: string;
+    firstName?: string;
+    lastName?: string;
+    departmentId?: string;
+    contactNumber?: string;
+    specialty?: string | undefined;
+    title?: string | undefined;
+
+    [key: string]: any;
+}
+
+export class UpdateExaminationCommand implements IUpdateExaminationCommand {
+    id?: string;
+    diagnosis?: string;
+    treatment?: string;
+
+    [key: string]: any;
+
+    constructor(data?: IUpdateExaminationCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.id = _data["id"];
+            this.diagnosis = _data["diagnosis"];
+            this.treatment = _data["treatment"];
+        }
+    }
+
+    static fromJS(data: any): UpdateExaminationCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateExaminationCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["id"] = this.id;
+        data["diagnosis"] = this.diagnosis;
+        data["treatment"] = this.treatment;
+        return data;
+    }
+}
+
+export interface IUpdateExaminationCommand {
+    id?: string;
+    diagnosis?: string;
+    treatment?: string;
+
+    [key: string]: any;
+}
+
+export class UpdateMyPatientProfileCommand implements IUpdateMyPatientProfileCommand {
+    firstName?: string;
+    lastName?: string;
+    dateOfBirth?: Date;
+    gender?: number;
+    contactNumber?: string;
+    address?: string;
+
+    [key: string]: any;
+
+    constructor(data?: IUpdateMyPatientProfileCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.firstName = _data["firstName"];
+            this.lastName = _data["lastName"];
+            this.dateOfBirth = _data["dateOfBirth"] ? new Date(_data["dateOfBirth"].toString()) : undefined as any;
+            this.gender = _data["gender"];
+            this.contactNumber = _data["contactNumber"];
+            this.address = _data["address"];
+        }
+    }
+
+    static fromJS(data: any): UpdateMyPatientProfileCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateMyPatientProfileCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["firstName"] = this.firstName;
+        data["lastName"] = this.lastName;
+        data["dateOfBirth"] = this.dateOfBirth ? this.dateOfBirth.toISOString() : undefined as any;
+        data["gender"] = this.gender;
+        data["contactNumber"] = this.contactNumber;
+        data["address"] = this.address;
+        return data;
+    }
+}
+
+export interface IUpdateMyPatientProfileCommand {
+    firstName?: string;
+    lastName?: string;
+    dateOfBirth?: Date;
+    gender?: number;
+    contactNumber?: string;
+    address?: string;
+
+    [key: string]: any;
+}
+
+export class UpdatePatientCommand implements IUpdatePatientCommand {
+    id?: string;
+    firstName?: string;
+    lastName?: string;
+    dateOfBirth?: Date;
+    gender?: number;
+    contactNumber?: string;
+    address?: string;
+
+    [key: string]: any;
+
+    constructor(data?: IUpdatePatientCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.id = _data["id"];
+            this.firstName = _data["firstName"];
+            this.lastName = _data["lastName"];
+            this.dateOfBirth = _data["dateOfBirth"] ? new Date(_data["dateOfBirth"].toString()) : undefined as any;
+            this.gender = _data["gender"];
+            this.contactNumber = _data["contactNumber"];
+            this.address = _data["address"];
+        }
+    }
+
+    static fromJS(data: any): UpdatePatientCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdatePatientCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["id"] = this.id;
+        data["firstName"] = this.firstName;
+        data["lastName"] = this.lastName;
+        data["dateOfBirth"] = this.dateOfBirth ? this.dateOfBirth.toISOString() : undefined as any;
+        data["gender"] = this.gender;
+        data["contactNumber"] = this.contactNumber;
+        data["address"] = this.address;
+        return data;
+    }
+}
+
+export interface IUpdatePatientCommand {
+    id?: string;
+    firstName?: string;
+    lastName?: string;
+    dateOfBirth?: Date;
+    gender?: number;
+    contactNumber?: string;
+    address?: string;
+
+    [key: string]: any;
+}
+
 export class UpdateTodoItemCommand implements IUpdateTodoItemCommand {
-    id?: number;
+    id?: string;
     title?: string | undefined;
     done?: boolean;
 
@@ -2253,7 +7413,7 @@ export class UpdateTodoItemCommand implements IUpdateTodoItemCommand {
 }
 
 export interface IUpdateTodoItemCommand {
-    id?: number;
+    id?: string;
     title?: string | undefined;
     done?: boolean;
 
@@ -2261,8 +7421,8 @@ export interface IUpdateTodoItemCommand {
 }
 
 export class UpdateTodoItemDetailCommand implements IUpdateTodoItemDetailCommand {
-    id?: number;
-    listId?: number;
+    id?: string;
+    listId?: string;
     priority?: number;
     note?: string | undefined;
 
@@ -2312,8 +7472,8 @@ export class UpdateTodoItemDetailCommand implements IUpdateTodoItemDetailCommand
 }
 
 export interface IUpdateTodoItemDetailCommand {
-    id?: number;
-    listId?: number;
+    id?: string;
+    listId?: string;
     priority?: number;
     note?: string | undefined;
 
@@ -2321,7 +7481,7 @@ export interface IUpdateTodoItemDetailCommand {
 }
 
 export class UpdateTodoListCommand implements IUpdateTodoListCommand {
-    id?: number;
+    id?: string;
     title?: string | undefined;
     colour?: string | undefined;
 
@@ -2369,7 +7529,7 @@ export class UpdateTodoListCommand implements IUpdateTodoListCommand {
 }
 
 export interface IUpdateTodoListCommand {
-    id?: number;
+    id?: string;
     title?: string | undefined;
     colour?: string | undefined;
 

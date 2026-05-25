@@ -1,10 +1,12 @@
-import { NavMenu } from './NavMenu';
+import { TopNavigation } from './NavMenu';
 
-export function Layout({ children }) {
+export function AppShell({ children }) {
   return (
-    <>
-      <NavMenu />
-      <main>{children}</main>
-    </>
+    <div className="app-shell">
+      <TopNavigation />
+      <main className="enterprise-main">{children}</main>
+    </div>
   );
 }
+
+export const Layout = AppShell;

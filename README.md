@@ -1,99 +1,73 @@
 ﻿# HospitalManagement
 
-HospitalManagement is a modern hospital management application.
-It uses .NET 10, Clean Architecture, and CQRS on the backend, with React + Vite on the frontend.
+HospitalManagement is a hospital operations app built with .NET 10, Clean Architecture, and CQRS. It provides a Web API and a React UI with a PostgreSQL backend.
 
-## Features
+## Stack
 
-- Patient and doctor management
-- Appointment creation, completion, cancellation, and rescheduling
-- Examination, prescription, and lab request/result workflows
-- OpenAPI + Scalar API documentation
-- Unit, integration, functional, and acceptance test layers
-
-## Technology Stack
-
-- .NET 10
-- ASP.NET Core Web API
+- .NET 10 / ASP.NET Core
+- EF Core + PostgreSQL
 - MediatR + FluentValidation
-- Entity Framework Core + PostgreSQL
 - React 19 + Vite
 - .NET Aspire (AppHost)
 
-## Architecture
+## Structure
 
-The project is structured with the following layers:
+- `src/Domain`: Domain model and rules
+- `src/Application`: CQRS handlers and validation
+- `src/Infrastructure`: Persistence, Identity, external services
+- `src/Web`: API and web host
+- `src/AppHost`: Aspire orchestration
+- `tests/*`: Test projects
 
-- `src/Domain`: Business rules, entities, value objects, and domain events
-- `src/Application`: Use cases, CQRS handlers, validation, and pipeline behaviors
-- `src/Infrastructure`: EF Core, Identity, persistence, and external integrations
-- `src/Web`: HTTP endpoints, authentication, OpenAPI, and static file hosting
-- `src/AppHost`: Service orchestration with Aspire (db + api + frontend)
-- `tests/*`: Unit, integration, functional, and acceptance test projects
-
-## Requirements
-
-- .NET SDK 10.0.101 or later
-- Node.js 22 or later
-- Docker (optional but recommended)
-
-## Quick Start (with Aspire)
-
-1. Clone the repository.
-2. Install dependencies:
+## Run (Docker)
 
 ```bash
-dotnet restore
-cd src/Web/ClientApp
-npm install
-cd ../../..
-```
-
-3. Start the application:
-
-```bash
-dotnet run --project src/AppHost/AppHost.csproj
-```
-
-Once running, use the Aspire dashboard to view API and frontend endpoints.
-
-## Run with Docker
-
-The following command starts PostgreSQL and web services with docker compose:
-
-```bash
+cd HospitalManagement
 docker compose up --build
 ```
 
-Default ports:
+- UI: `http://localhost:5173`
+- API: `http://localhost:5001`
+- API docs: `http://localhost:5001/scalar`
 
-- Web: `http://localhost:5001`
-- PostgreSQL: `localhost:5432`
+Seeded dev users:
 
-## API Documentation
+- Administrator: `administrator@localhost` / `Administrator1!`
+- Doctor: `doctor@localhost` / `Doctor1!`
+- Patient: `patient@localhost` / `Patient1!`
 
-When the Web API is running, Scalar is available at:
+Docker starts three services:
 
-- `/scalar`
+- `frontend`: React/Vite development server on port `5173`
+- `web`: ASP.NET Core API on port `5001`
+- `db`: PostgreSQL on port `5432`
+
+## Run (Local)
+
+Start the database:
+
+```bash
+cd HospitalManagement
+docker compose up db
+```
+
+Start the API:
+
+```bash
+cd HospitalManagement
+dotnet run --project src/Web/Web.csproj --launch-profile http
+```
+
+Start the UI:
+
+```bash
+cd HospitalManagement/src/Web/ClientApp
+npm install
+HOSPITALMANAGEMENT_API_URL=http://localhost:5276 npm run start
+```
 
 ## Tests
-
-Run all tests:
 
 ```bash
 dotnet test
 ```
-
-Run only domain unit tests:
-
-```bash
-dotnet test tests/Domain.UnitTests/Domain.UnitTests.csproj
-```
-
-## Contributing
-
-Feel free to open an issue or submit a pull request.
-
-## License
-
-No license has been specified for this project yet.
