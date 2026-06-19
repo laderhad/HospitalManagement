@@ -1,11 +1,12 @@
 import { Navigate, useLocation } from 'react-router-dom';
-import { useAuth } from './AuthContext';
+import { defaultRouteForUser, hasAnyRole, useAuth } from './AuthContext';
 
-export function ProtectedRoute({ children }) {
-  const { isAuthenticated, isLoading } = useAuth();
+export function ProtectedRoute({ children, roles = [] }) {
+  const { isAuthenticated, isLoading, user } = useAuth();
   const location = useLocation();
 
   if (isLoading) return null;
   if (!isAuthenticated) return <Navigate to="/login" state={{ returnUrl: location.pathname }} replace />;
+  if (!hasAnyRole(user, roles)) return <Navigate to={defaultRouteForUser(user)} replace />;
   return children;
 }

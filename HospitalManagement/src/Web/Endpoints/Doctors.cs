@@ -1,6 +1,7 @@
 using HospitalManagement.Application.Doctors.Commands.CreateDoctor;
 using HospitalManagement.Application.Doctors.Commands.SetDoctorActiveState;
 using HospitalManagement.Application.Doctors.Commands.UpdateDoctor;
+using HospitalManagement.Application.Doctors.Queries.GetAvailableDoctors;
 using HospitalManagement.Application.Doctors.Queries.GetDoctorById;
 using HospitalManagement.Application.Doctors.Queries.GetDoctors;
 using HospitalManagement.Domain.Constants;
@@ -12,13 +13,23 @@ public class Doctors : IEndpointGroup
 {
     public static void Map(RouteGroupBuilder groupBuilder)
     {
-        groupBuilder.RequireAuthorization(Policies.IsAdministrator);
+        groupBuilder.RequireAuthorization();
 
-        groupBuilder.MapGet(GetDoctors);
-        groupBuilder.MapGet(GetDoctorById, "{id}");
-        groupBuilder.MapPost(CreateDoctor);
-        groupBuilder.MapPut(UpdateDoctor, "{id}");
-        groupBuilder.MapPatch(SetDoctorActiveState, "{id}/status");
+        groupBuilder.MapGet(GetAvailableDoctors, "available").RequireAuthorization(Policies.IsAdministratorOrPatient);
+        groupBuilder.MapGet(GetDoctors).RequireAuthorization(Policies.IsAdministrator);
+        groupBuilder.MapGet(GetDoctorById, "{id}").RequireAuthorization(Policies.IsAdministrator);
+        groupBuilder.MapPost(CreateDoctor).RequireAuthorization(Policies.IsAdministrator);
+        groupBuilder.MapPut(UpdateDoctor, "{id}").RequireAuthorization(Policies.IsAdministrator);
+        groupBuilder.MapPatch(SetDoctorActiveState, "{id}/status").RequireAuthorization(Policies.IsAdministrator);
+    }
+
+    [EndpointSummary("Get available Doctors")]
+    [EndpointDescription("Retrieves active doctors that can be selected for patient appointment requests.")]
+    public static async Task<Ok<IReadOnlyCollection<DoctorSummaryDto>>> GetAvailableDoctors(ISender sender)
+    {
+        var doctors = await sender.Send(new GetAvailableDoctorsQuery());
+
+        return TypedResults.Ok(doctors);
     }
 
     [EndpointSummary("Get all Doctors")]

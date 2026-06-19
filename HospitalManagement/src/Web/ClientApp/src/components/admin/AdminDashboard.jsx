@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Building2, CalendarDays, Stethoscope, UsersRound } from 'lucide-react';
-import { AppointmentsClient, DepartmentsClient, DoctorsClient, PatientsClient } from '../../web-api-client';
+import { Building2, CalendarDays, Stethoscope, TestTube2, UsersRound } from 'lucide-react';
+import { AppointmentsClient, DepartmentsClient, DoctorsClient, LabRequestsClient, PatientsClient } from '../../web-api-client';
 import { ApiNotice, LoadingState, PageHeader } from './AdminCommon';
 
 const dashboardResources = [
@@ -32,6 +32,13 @@ const dashboardResources = [
     path: '/appointments',
     icon: CalendarDays,
     load: () => new AppointmentsClient().getAppointments()
+  },
+  {
+    key: 'labRequests',
+    label: 'Lab requests',
+    path: '/lab-results',
+    icon: TestTube2,
+    load: () => new LabRequestsClient().getLabRequests()
   }
 ];
 

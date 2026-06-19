@@ -18,7 +18,7 @@ public class PrescriptionManagementTests : TestBase
     public async Task DoctorShouldCreatePrescriptionForOwnExamination()
     {
         var (doctorId, doctorUserId) = await CreateDoctorProfileAsync("prescription.doctor@local");
-        var patientId = await CreatePatientProfileAsync("prescription.patient@local");
+        var patientId = await CreatePatientProfileForEmailAsync("prescription.patient@local");
 
         await TestApp.RunAsAdministratorAsync();
         var appointmentId = await TestApp.SendAsync(new CreateAppointmentCommand
@@ -110,7 +110,7 @@ public class PrescriptionManagementTests : TestBase
         return (doctorId, doctor!.ApplicationUserId);
     }
 
-    private static async Task<Guid> CreatePatientProfileAsync(string email)
+    private static async Task<Guid> CreatePatientProfileForEmailAsync(string email)
     {
         var userId = await TestApp.RunAsUserAsync(email, "Patient1234!", []);
         return await CreatePatientProfileAsync(userId);
