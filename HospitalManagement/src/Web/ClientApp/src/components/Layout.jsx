@@ -4,7 +4,9 @@ export function AppShell({ children }) {
   return (
     <div className="app-shell">
       <TopNavigation />
-      <main className="enterprise-main">{children}</main>
+      <main className="enterprise-main">
+        <div className="app-content">{children}</div>
+      </main>
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from './AuthContext';
+import { Button, Input } from '../ui';
 
 export function LoginPage() {
   const [email, setEmail] = useState('');
@@ -29,23 +30,24 @@ export function LoginPage() {
   };
 
   return (
-    <article>
-      <h2>Log in</h2>
+    <article className="auth-card">
+      <header className="auth-header">
+        <h2>Log in</h2>
+        <p>Continue to your hospital workspace.</p>
+      </header>
       {location.state?.message && <p className="success">{location.state.message}</p>}
-      <form onSubmit={handleSubmit}>
-        <label htmlFor="email">Email</label>
-        <input type="email" id="email" autoComplete="username"
+      <form className="detail-form" onSubmit={handleSubmit}>
+        <Input label="Email" type="email" id="email" autoComplete="username"
           value={email} onChange={handleChange(setEmail)}
           aria-invalid={error || undefined}
           aria-describedby={error ? 'login-error' : undefined} />
-        <label htmlFor="password">Password</label>
-        <input type="password" id="password" autoComplete="current-password"
+        <Input label="Password" type="password" id="password" autoComplete="current-password"
           value={password} onChange={handleChange(setPassword)}
           aria-invalid={error || undefined}
           aria-describedby={error ? 'login-error' : undefined} />
         {error && <small id="login-error">{error}</small>}
-        <button type="submit">Log in</button>
-        <p style={{ marginTop: '1rem' }}>Don't have an account? <Link to="/register">Register</Link></p>
+        <Button type="submit">Log in</Button>
+        <p className="auth-switch">Don't have an account? <Link to="/register">Register</Link></p>
       </form>
     </article>
   );

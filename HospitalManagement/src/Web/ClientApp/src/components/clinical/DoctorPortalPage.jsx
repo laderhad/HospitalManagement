@@ -17,8 +17,10 @@ import {
   dateTimeInputValue,
   EmptyState,
   LoadingState,
+  PaneTitle,
   PageHeader,
-  StatusBadge
+  StatusBadge,
+  SummaryBlock
 } from '../admin/AdminCommon';
 
 const appointmentsClient = new AppointmentsClient();
@@ -349,7 +351,7 @@ export function DoctorPortalPage() {
               )}
 
               <section className="clinical-panel">
-                <PanelTitle icon={ClipboardPlus} title="Create examination" />
+                <PaneTitle icon={ClipboardPlus} title="Create examination" className="clinical-panel-title" />
                 <form className="detail-form" onSubmit={createExamination}>
                   <div className="field-grid">
                     <label className="span-two">Appointment
@@ -373,7 +375,7 @@ export function DoctorPortalPage() {
               </section>
 
               <section className="clinical-panel">
-                <PanelTitle icon={FileText} title="Add prescription" />
+                <PaneTitle icon={FileText} title="Add prescription" className="clinical-panel-title" />
                 <form className="detail-form" onSubmit={createPrescription}>
                   <ClinicalExaminationSelect value={prescriptionForm.examinationId} examinations={examinations} onChange={updatePrescriptionForm} />
                   <div className="field-grid">
@@ -393,7 +395,7 @@ export function DoctorPortalPage() {
               </section>
 
               <section className="clinical-panel">
-                <PanelTitle icon={TestTube2} title="Create lab request" />
+                <PaneTitle icon={TestTube2} title="Create lab request" className="clinical-panel-title" />
                 <form className="detail-form" onSubmit={createLabRequest}>
                   <ClinicalExaminationSelect value={labRequestForm.examinationId} examinations={examinations} onChange={updateLabRequestForm} />
                   <label>Test names<textarea required rows={4} name="testNames" value={labRequestForm.testNames} onChange={updateLabRequestForm} placeholder="Complete blood count&#10;Glucose" /></label>
@@ -409,9 +411,9 @@ export function DoctorPortalPage() {
               <section className="clinical-list-section">
                 <h3>Recent clinical output</h3>
                 <div className="clinical-summary-grid">
-                  <SummaryBlock title="Prescriptions" records={prescriptions} label={record => `${record.patientFullName} | ${record.medicationName}`} />
-                  <SummaryBlock title="Lab requests" records={labRequests} label={record => `${record.patientFullName} | ${record.itemCount} tests`} />
-                  <SummaryBlock title="Lab results" records={labResults} label={record => `${record.patientFullName} | ${record.testName}: ${record.resultValue}`} />
+                  <SummaryBlock title="Prescriptions" records={prescriptions} limit={4} label={record => `${record.patientFullName} | ${record.medicationName}`} />
+                  <SummaryBlock title="Lab requests" records={labRequests} limit={4} label={record => `${record.patientFullName} | ${record.itemCount} tests`} />
+                  <SummaryBlock title="Lab results" records={labResults} limit={4} label={record => `${record.patientFullName} | ${record.testName}: ${record.resultValue}`} />
                 </div>
               </section>
             </div>
@@ -419,15 +421,6 @@ export function DoctorPortalPage() {
         </section>
       </div>
     </section>
-  );
-}
-
-function PanelTitle({ icon: Icon, title }) {
-  return (
-    <div className="pane-title clinical-panel-title">
-      <Icon size={18} strokeWidth={2} />
-      <h2>{title}</h2>
-    </div>
   );
 }
 
@@ -441,20 +434,5 @@ function ClinicalExaminationSelect({ value, examinations, onChange }) {
         ))}
       </select>
     </label>
-  );
-}
-
-function SummaryBlock({ title, records, label }) {
-  return (
-    <div className="summary-block">
-      <h4>{title}</h4>
-      {records.length ? (
-        <ul className="summary-list">
-          {records.slice(0, 4).map(record => <li key={record.id}>{label(record)}</li>)}
-        </ul>
-      ) : (
-        <span>No records</span>
-      )}
-    </div>
   );
 }

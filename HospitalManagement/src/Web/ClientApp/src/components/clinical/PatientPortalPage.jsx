@@ -21,7 +21,8 @@ import {
   genderLabels,
   LoadingState,
   PageHeader,
-  StatusBadge
+  StatusBadge,
+  SummaryBlock
 } from '../admin/AdminCommon';
 
 const appointmentsClient = new AppointmentsClient();
@@ -367,20 +368,5 @@ export function PatientPortalPage() {
         </div>
       )}
     </section>
-  );
-}
-
-function SummaryBlock({ title, records, label, icon: Icon }) {
-  return (
-    <div className="summary-block">
-      <h4>{Icon && <Icon size={15} strokeWidth={2} />}{title}</h4>
-      {records.length ? (
-        <ul className="summary-list">
-          {records.slice(0, 5).map(record => <li key={record.id}>{label(record)}</li>)}
-        </ul>
-      ) : (
-        <span>No records</span>
-      )}
-    </div>
   );
 }

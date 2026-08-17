@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from './AuthContext';
+import { Button, FieldGrid, Input, Select, Textarea } from '../ui';
 
 const initialForm = {
   email: '',
@@ -132,62 +133,51 @@ export function RegisterPage() {
   };
 
   return (
-    <article>
-      <h2>Register patient</h2>
+    <article className="auth-card auth-card-wide">
+      <header className="auth-header">
+        <h2>Register patient</h2>
+        <p>Create a patient account and profile in one step.</p>
+      </header>
       {error && <p className="error">{error}</p>}
-      <form onSubmit={handleSubmit}>
-        <div className="field-grid">
-          <label htmlFor="email">Email
-            <input
-              required
-              type="email"
-              id="email"
-              name="email"
-              autoComplete="username"
-              value={form.email}
-              onChange={updateForm}
-              aria-invalid={submitted && !emailValid ? true : undefined}
-            />
-          </label>
-          <label htmlFor="password">Password
-            <input
-              required
-              type="password"
-              id="password"
-              name="password"
-              autoComplete="new-password"
-              value={form.password}
-              onChange={updateForm}
-              aria-invalid={submitted && !passwordValid ? true : undefined}
-              aria-describedby="password-helper"
-            />
-          </label>
+      <form className="detail-form" onSubmit={handleSubmit}>
+        <FieldGrid>
+          <Input
+            required
+            label="Email"
+            type="email"
+            id="email"
+            name="email"
+            autoComplete="username"
+            value={form.email}
+            onChange={updateForm}
+            aria-invalid={submitted && !emailValid ? true : undefined}
+          />
+          <Input
+            required
+            label="Password"
+            type="password"
+            id="password"
+            name="password"
+            autoComplete="new-password"
+            value={form.password}
+            onChange={updateForm}
+            aria-invalid={submitted && !passwordValid ? true : undefined}
+            aria-describedby="password-helper"
+          />
           <small id="password-helper" className="span-two">
             {passwordMissing.length ? `Password needs ${passwordMissing.join(', ')}.` : 'Use at least 6 characters with uppercase, lowercase, number, and symbol.'}
           </small>
-          <label htmlFor="firstName">First name
-            <input required id="firstName" name="firstName" value={form.firstName} onChange={updateForm} />
-          </label>
-          <label htmlFor="lastName">Last name
-            <input required id="lastName" name="lastName" value={form.lastName} onChange={updateForm} />
-          </label>
-          <label htmlFor="dateOfBirth">Date of birth
-            <input required type="date" id="dateOfBirth" name="dateOfBirth" value={form.dateOfBirth} onChange={updateForm} />
-          </label>
-          <label htmlFor="gender">Gender
-            <select id="gender" name="gender" value={form.gender} onChange={updateForm}>
-              {genderOptions.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
-            </select>
-          </label>
-          <label htmlFor="contactNumber" className="span-two">Contact number
-            <input required id="contactNumber" name="contactNumber" value={form.contactNumber} onChange={updateForm} />
-          </label>
-          <label htmlFor="address" className="span-two">Address
-            <textarea required rows={3} id="address" name="address" value={form.address} onChange={updateForm} />
-          </label>
-        </div>
-        <button type="submit">Register patient</button>
-        <p style={{ marginTop: '1rem' }}>Already have an account? <Link to="/login">Log in</Link></p>
+          <Input required label="First name" id="firstName" name="firstName" value={form.firstName} onChange={updateForm} />
+          <Input required label="Last name" id="lastName" name="lastName" value={form.lastName} onChange={updateForm} />
+          <Input required label="Date of birth" type="date" id="dateOfBirth" name="dateOfBirth" value={form.dateOfBirth} onChange={updateForm} />
+          <Select label="Gender" id="gender" name="gender" value={form.gender} onChange={updateForm}>
+            {genderOptions.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+          </Select>
+          <Input required label="Contact number" id="contactNumber" name="contactNumber" className="span-two" value={form.contactNumber} onChange={updateForm} />
+          <Textarea required label="Address" rows={3} id="address" name="address" className="span-two" value={form.address} onChange={updateForm} />
+        </FieldGrid>
+        <Button type="submit">Register patient</Button>
+        <p className="auth-switch">Already have an account? <Link to="/login">Log in</Link></p>
       </form>
     </article>
   );

@@ -16,7 +16,7 @@ function AuthLinks() {
     return (
       <>
         {user?.email && <li><span className="session-email">{user.email}</span></li>}
-        <li><a href="#" onClick={handleLogout}>Log out</a></li>
+        <li><button type="button" className="nav-button" onClick={handleLogout}>Log out</button></li>
       </>
     );
   }
