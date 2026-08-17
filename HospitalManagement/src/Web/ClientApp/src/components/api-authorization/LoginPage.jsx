@@ -31,6 +31,7 @@ export function LoginPage() {
   return (
     <article>
       <h2>Log in</h2>
+      {location.state?.message && <p className="success">{location.state.message}</p>}
       <form onSubmit={handleSubmit}>
         <label htmlFor="email">Email</label>
         <input type="email" id="email" autoComplete="username"

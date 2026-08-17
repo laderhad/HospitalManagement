@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useState, useEffect } from 'react';
-import { UsersClient, LoginRequest, RegisterRequest } from '../../web-api-client';
+import { UsersClient, LoginRequest, RegisterPatientRequest } from '../../web-api-client';
 
 const AuthContext = createContext(null);
 
@@ -49,8 +49,8 @@ export function AuthProvider({ children }) {
     client.login(true, undefined, new LoginRequest({ email, password }))
       .then(loadCurrentUser);
 
-  const register = (email, password) =>
-    client.register(new RegisterRequest({ email, password }));
+  const register = patientRegistration =>
+    client.registerPatient(new RegisterPatientRequest(patientRegistration));
 
   const logout = () =>
     client.logout({})
